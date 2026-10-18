@@ -1,0 +1,11 @@
+{
+  "Activity": {
+    "Video Browsing History": {
+      "VideoList": [{ "Date": "2022-05-01 08:00:00", "VideoLink": "https://www.tiktokv.com/share/video/7090000000000000001/" }]
+    },
+    "Search History": { "SearchList": [{ "Date": "2022-05-02 08:00:00", "SearchTerm": "cat videos" }] },
+    "Like List": { "ItemFavoriteList": [{ "Date": "2022-05-03 08:00:00", "VideoLink": "https://www.tiktokv.com/share/video/7090000000000000002/" }] },
+    "Following List": { "Following": [{ "Date": "2022-01-01 00:00:00", "UserName": "cats.demo" }] }
+  },
+  "App Settings": { "Ad Interests": { "AdInterestCategories": ["Pets", "Comedy"] } }
+}

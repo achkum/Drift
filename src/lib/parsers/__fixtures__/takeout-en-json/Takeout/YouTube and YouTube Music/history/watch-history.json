@@ -1,0 +1,49 @@
+[{
+  "header": "YouTube",
+  "title": "Watched Marathon training for beginners",
+  "titleUrl": "https://www.youtube.com/watch?v=abcDEF12345",
+  "subtitles": [{ "name": "Run Club Demo", "url": "https://www.youtube.com/channel/UCdemo000000000000000001" }],
+  "time": "2026-03-01T12:34:56.789Z",
+  "products": ["YouTube"],
+  "activityControls": ["YouTube watch history"]
+}, {
+  "header": "YouTube",
+  "title": "Watched Shiny New Sneakers",
+  "titleUrl": "https://www.youtube.com/watch?v=adVIDEO0001",
+  "subtitles": [{ "name": "Sneaker Brand Demo", "url": "https://www.youtube.com/channel/UCdemo000000000000000002" }],
+  "time": "2026-03-02T08:00:00Z",
+  "products": ["YouTube"],
+  "details": [{ "name": "From Google Ads" }],
+  "activityControls": ["YouTube watch history"]
+}, {
+  "header": "YouTube",
+  "title": "Watched a video that has been removed",
+  "time": "2026-03-03T09:00:00.000Z",
+  "products": ["YouTube"],
+  "activityControls": ["YouTube watch history"]
+}, {
+  "header": "YouTube Music",
+  "title": "Watched https://music.youtube.com/watch?v=musicID0001",
+  "titleUrl": "https://music.youtube.com/watch?v=musicID0001",
+  "time": "2026-03-04T10:00:00.000Z",
+  "products": ["YouTube"]
+}, {
+  "header": "YouTube",
+  "title": "Watched Quick tip",
+  "titleUrl": "https://www.youtube.com/shorts/shortID0001",
+  "subtitles": [{ "name": "Tips Demo", "url": "https://www.youtube.com/@tipsdemo" }],
+  "time": "2026-03-05T10:00:00.000Z",
+  "products": ["YouTube"]
+}, {
+  "header": "YouTube",
+  "title": "Watched Marathon training for beginners",
+  "titleUrl": "https://www.youtube.com/watch?v=abcDEF12345",
+  "subtitles": [{ "name": "Run Club Demo", "url": "https://www.youtube.com/channel/UCdemo000000000000000001" }],
+  "time": "2026-03-01T12:34:56.789Z",
+  "products": ["YouTube"]
+}, {
+  "header": "YouTube",
+  "title": "Answered survey question",
+  "time": "2026-03-06T10:00:00.000Z",
+  "products": ["YouTube"]
+}]
