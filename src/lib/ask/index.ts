@@ -1,5 +1,6 @@
 // OWNER: pipeline agent. Ask Drift: template answers computed from Insights. No network.
 // Every number in an answer comes straight from Insights. Served vs chosen is always called an estimate.
+import { matchTopic } from '@/lib/analysis';
 import type { AskAnswer, Insights, Platform, TopicDelta, TopicDetail, TopicId } from '@/lib/types';
 
 // ── formatting ──────────────────────────────────────────────────────
@@ -73,7 +74,7 @@ const SWEDISH: Record<string, string> = {
   minskade: 'fall', minskat: 'fall', minskar: 'fall', flöde: 'feed', flödet: 'feed', mest: 'most', trycker: 'push',
   bubbla: 'bubble', smalare: 'narrow', politik: 'politics', nyheter: 'news', hälsa: 'health', träning: 'fitness',
   musik: 'music', spel: 'gaming', resor: 'travel', teknik: 'tech', ekonomi: 'finance', sammanfatta: 'summary',
-  sammanfattning: 'summary', intressen: 'interests', ser: 'see', hur: 'how', vad: 'what', mig: 'me',
+  sammanfattning: 'summary', mindre: 'fall', färre: 'fall', sjönk: 'fall', mer: 'rise', fler: 'rise', växte: 'rise', intressen: 'interests', ser: 'see', hur: 'how', vad: 'what', mig: 'me',
 };
 
 const STOP = new Set(['and', 'the', 'for', 'with', 'news', 'other', 'misc', 'videos', 'video', 'stuff', '&']);
@@ -115,7 +116,11 @@ function findTopic(text: string, insights: Insights): TopicId | null {
     }
     if (score > 0 && (!best || score > best.score)) best = { id, score };
   }
-  return best?.id ?? null;
+  if (best) return best.id;
+  // Fall back to the classifier's keywords (English and Swedish, e.g. "fotboll"), limited to topics in the data.
+  const known = new Set(allTopics(insights).map((t) => t.id));
+  const kw = matchTopic(text);
+  return kw && known.has(kw) ? kw : null;
 }
 
 function escapeRe(s: string): string {

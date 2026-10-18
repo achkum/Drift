@@ -329,3 +329,5 @@ input[type="radio"] { width: 20px; height: 20px; accent-color: var(--accent); fl
 
 /* Onboarded users are redirected from the sign-in screen; hide it until then. */
 :root[data-onboarded] .welcome-gate { visibility: hidden; }
+
+.kv > :last-child { white-space: nowrap; }

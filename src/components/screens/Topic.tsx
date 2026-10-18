@@ -1,5 +1,5 @@
 'use client';
-import { useId, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { PageTitle, Screen } from '../Screen';
 import { Icon } from '../Icon';
 import { EmptyState, Loading } from '../bits';
@@ -44,6 +44,10 @@ export function TopicScreen({ id }: { id: string }) {
   const itemsId = useId();
   const tipId = useId();
   const d = insights.topics[id];
+  const label = d?.label;
+
+  // Topics live only in the browser, so the server-rendered title is generic.
+  useEffect(() => { if (label) document.title = `${label} · Drift`; }, [label]);
 
   if (status !== 'ready') {
     return <Screen tabbed back="/timeline"><PageTitle>Topic</PageTitle><Loading blocks={[96, 30, 168, 54]} /></Screen>;

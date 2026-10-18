@@ -3,6 +3,15 @@ import type { Insights } from '@/lib/types';
 import { sampleInsights } from '@/lib/sample/sampleInsights';
 import { answerQuestion, suggestedQuestions } from './index';
 
+const emptyInsights: Insights = {
+  generatedAt: '2026-10-18T00:00:00Z', months: [], platforms: [], totals: { items: 0, watches: 0, searches: 0 },
+  headline: { title: '', detail: '' }, monthly: [], rising: [], falling: [],
+  chosen: { windowDays: 30, chosenPct: 0, servedPct: 0, byPlatform: [] }, turningPoints: [], topics: {},
+  range: { monthThen: '', topicsThen: 0, monthNow: '', topicsNow: 0, narrowing: false },
+  platformInterests: [], actualTopics: [], ads: { advertisers: [], adItems: 0 }, digest: { weekOf: '', lines: [] },
+};
+
+
 const insights: Insights = {
   generatedAt: '2026-10-18T00:00:00Z',
   months: ['2026-01', '2026-02', '2026-03'],
@@ -123,13 +132,13 @@ describe('answerQuestion', () => {
   });
 
   it('is honest when there is no data', () => {
-    const a = answerQuestion('Why did politics rise for me?', sampleInsights);
+    const a = answerQuestion('Why did politics rise for me?', emptyInsights);
     expect(a.paragraphs[0]).toMatch(/no data/);
     expect(a.paragraphs.join(' ')).not.toMatch(/\d+%/);
   });
 
   it('never prints numbers that are not in Insights for sparse data', () => {
-    const sparse: Insights = { ...sampleInsights, totals: { items: 5, watches: 5, searches: 0 } };
+    const sparse: Insights = { ...emptyInsights, totals: { items: 5, watches: 5, searches: 0 } };
     for (const q of ['What is my feed pushing most?', 'Who targets me with ads?', 'What changed this week?', 'Am I in a bubble?', 'What could I change?']) {
       const a = answerQuestion(q, sparse);
       expect(a.paragraphs.length).toBeGreaterThan(0);

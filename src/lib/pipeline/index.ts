@@ -127,7 +127,11 @@ export async function exportResults(): Promise<Blob> {
     formatVersion: EXPORT_FORMAT_VERSION,
     exportedAt: new Date().toISOString(),
     note: 'Computed results only. Your raw watch, search and ad history is not included.',
-    insights,
+    // Strip per-item titles and links so the file holds only aggregate results.
+    insights: insights && {
+      ...insights,
+      topics: Object.fromEntries(Object.entries(insights.topics ?? {}).map(([k, t]) => [k, { ...t, recentItems: [] }])),
+    },
     imports: imports.map((r) => ({
       id: r.id, platform: r.platform, importedAt: r.importedAt, fileName: r.fileName,
       events: r.events, newEvents: r.newEvents, warnings: r.warnings,

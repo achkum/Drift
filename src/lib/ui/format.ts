@@ -64,7 +64,7 @@ export function pct(n: number): string {
 /** +15% / −11% with a real minus sign. */
 export function signedPct(delta: number): string {
   const r = Math.round(delta);
-  return `${r >= 0 ? '+' : '−'}${Math.abs(r)}%`;
+  return `${r >= 0 ? '+' : '−'}${Math.abs(r)} pts`;
 }
 
 /** "A", "A and B", "A, B and C". */

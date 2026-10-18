@@ -23,7 +23,7 @@ export function ChosenScreen() {
       ) : (
         <>
           <ChosenSummary chosenPct={c.chosenPct}>
-            <span className="small"><b className="t1">Chosen:</b> you watched it after a search, or it came from a channel you follow or subscribe to.</span>
+            <span className="small"><b className="t1">Chosen:</b> you watched it after a search, it came from a channel you follow or subscribe to, or you keep coming back to that channel on your own.</span>
             <span className="small"><b className="t1">Served:</b> everything else the platform put in front of you.</span>
           </ChosenSummary>
           {platforms.length > 0 && <h2>By platform</h2>}
