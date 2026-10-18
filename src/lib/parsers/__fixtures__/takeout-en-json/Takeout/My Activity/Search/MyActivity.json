@@ -1,0 +1,13 @@
+[{
+  "header": "Search",
+  "title": "Searched for best running shoes",
+  "titleUrl": "https://www.google.com/search?q=best+running+shoes",
+  "time": "2026-03-01T07:00:00.000Z",
+  "products": ["Search"]
+}, {
+  "header": "Search",
+  "title": "Visited Example running shop",
+  "titleUrl": "https://www.google.com/url?q=https://shop.example.com/",
+  "time": "2026-03-01T07:01:00.000Z",
+  "products": ["Search"]
+}]
