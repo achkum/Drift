@@ -3,7 +3,9 @@ import type { DriftEvent, FollowRecord, Origin } from '@/lib/types';
 import { contentTokens, nameKey, tokensMatch, urlKey } from './text';
 
 export const SEARCH_WINDOW_MS = 30 * 60 * 1000;
-export const RETURN_DAYS = 4;
+export const RETURN_DAYS = 6;
+/** A watch starts a session when nothing was watched in the gap before it; only those count as a deliberate return. */
+export const SESSION_GAP_MS = 10 * 60 * 1000;
 export const RETURN_WINDOW_DAYS = 30;
 const DAY_MS = 86_400_000;
 
@@ -73,6 +75,7 @@ export function labelOrigins(events: DriftEvent[], times: number[], follows: Fol
   const out: OriginLabel[] = new Array(events.length);
   const recentSearches: { time: number; tokens: string[]; query: string }[] = [];
   const channelDays = new Map<string, number[]>();
+  let lastWatch = -Infinity;
 
   for (let i = 0; i < events.length; i++) {
     const ev = events[i];
@@ -94,7 +97,9 @@ export function labelOrigins(events: DriftEvent[], times: number[], follows: Fol
       continue;
     }
 
-    // Watch.
+    // Watch. Autoplay and feed scrolling chain watches together; a watch with a gap before it was opened on purpose more often.
+    const startsSession = t - lastWatch > SESSION_GAP_MS;
+    lastWatch = t;
     let label: OriginLabel | undefined;
     if (isFollowed(ev, followIdx)) {
       label = {
@@ -128,7 +133,7 @@ export function labelOrigins(events: DriftEvent[], times: number[], follows: Fol
       let days = channelDays.get(ck);
       if (!days) channelDays.set(ck, (days = []));
       if (days[days.length - 1] !== day) days.push(day);
-      if (!label) {
+      if (!label && startsSession) {
         const n = days.length - lowerBound(days, day - (RETURN_WINDOW_DAYS - 1));
         if (n >= RETURN_DAYS) {
           label = { origin: 'chosen', originReason: `came back to this channel on ${n} days in a month` };

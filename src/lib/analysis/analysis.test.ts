@@ -117,12 +117,15 @@ describe('origin labels', () => {
     expect(by(at(52))).toMatchObject({ origin: 'served' });
   });
 
-  it('marks a channel the user came back to on 4 days in 30 as chosen', async () => {
-    const events = [0, 3, 9, 20, 60].map((d) =>
-      ev({ kind: 'watch', time: new Date(Date.UTC(2026, 0, 1 + d, 20)).toISOString(), title: `Clip ${d}`, channel: { name: 'Habit Channel', url: 'https://youtube.com/@habit' } }));
+  it('marks a channel the user came back to on 6 days in 30 as chosen, only when it starts a session', async () => {
+    const habit = { name: 'Habit Channel', url: 'https://youtube.com/@habit' };
+    const at = (d: number, min = 0) => new Date(Date.UTC(2026, 0, 1 + d, 20, min)).toISOString();
+    const events = [0, 3, 6, 9, 12, 20, 60].map((d) => ev({ kind: 'watch', time: at(d), title: `Clip ${d}`, channel: habit }));
+    // Autoplayed right after another video on day 20: not a deliberate return.
+    events.push(ev({ kind: 'watch', time: at(20, 4), title: 'Clip 20b', channel: habit }));
     const { classified } = await analyse({ events, follows: [], interests: [], advertisers: [] });
-    expect(classified.map((e) => e.origin)).toEqual(['served', 'served', 'served', 'chosen', 'served']);
-    expect(classified[3].originReason).toMatch(/came back to this channel/);
+    expect(classified.map((e) => e.origin)).toEqual(['served', 'served', 'served', 'served', 'served', 'chosen', 'served', 'served']);
+    expect(classified[5].originReason).toMatch(/came back to this channel/);
   });
 });
 
