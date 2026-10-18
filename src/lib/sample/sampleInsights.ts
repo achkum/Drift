@@ -232,6 +232,10 @@ export const sampleInsights: Insights = {
       { platform: 'instagram', name: 'Harbor Home Loans', count: 9 },
     ],
     adItems: 39,
+    tactics: [
+      { id: 'fake_urgency', label: 'Fake urgency', count: 8, examples: ['Last chance: offer ends tonight'] },
+      { id: 'fake_discount', label: 'Fake discounts', count: 6, examples: ['70% off everything, today only'] },
+    ],
   },
 
   digest: {

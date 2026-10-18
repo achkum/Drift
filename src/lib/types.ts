@@ -40,6 +40,8 @@ export interface DriftEvent {
   query?: string;
   /** True when the export marks it as coming from ads (YouTube "From Google Ads"). */
   fromAds?: boolean;
+  /** 'lookup' when the title was fetched later by the opt-in title lookup (only the video id/link was sent). */
+  titleSource?: 'export' | 'lookup';
 }
 
 /** A channel / account the user subscribes to or follows. */
@@ -225,10 +227,29 @@ export interface Insights {
   /** Labels of the user's top actual topics, most first. */
   actualTopics: string[];
 
-  ads: { advertisers: AdvertiserRecord[]; adItems: number };
+  ads: { advertisers: AdvertiserRecord[]; adItems: number; tactics: AdTactic[] };
 
   /** Weekly digest for the latest full week. */
   digest: { weekOf: string; lines: string[] };
+}
+
+/** A manipulative ad technique found in ad titles (fear, fake urgency, fake discounts, scams...). */
+export interface AdTactic {
+  id: 'fake_urgency' | 'fake_discount' | 'fear' | 'scam' | 'before_after' | 'too_good' | string;
+  label: string;
+  count: number;
+  /** Up to 3 example ad titles. */
+  examples: string[];
+}
+
+// ── Settings ────────────────────────────────────────────────────────
+
+/** User choices that change how data is processed. Stored on the device. */
+export interface DriftSettings {
+  /** Use the on-device ML topic model (downloads a model once) instead of keywords only. */
+  smartTopics: boolean;
+  /** Look up missing titles (TikTok, removed videos) by sending only video ids/links. Off by default. */
+  titleLookup: boolean;
 }
 
 // ── Import / storage ────────────────────────────────────────────────
@@ -244,7 +265,7 @@ export interface ImportRecord {
 }
 
 export interface ImportProgress {
-  stage: 'reading' | 'unzipping' | 'parsing' | 'classifying' | 'analysing' | 'saving' | 'done' | 'error';
+  stage: 'reading' | 'unzipping' | 'parsing' | 'enriching' | 'loading-model' | 'classifying' | 'analysing' | 'saving' | 'done' | 'error';
   message: string;
   /** 0-1 when known. */
   fraction?: number;

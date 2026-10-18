@@ -8,7 +8,7 @@ const emptyInsights: Insights = {
   headline: { title: '', detail: '' }, monthly: [], rising: [], falling: [],
   chosen: { windowDays: 30, chosenPct: 0, servedPct: 0, byPlatform: [] }, turningPoints: [], topics: {},
   range: { monthThen: '', topicsThen: 0, monthNow: '', topicsNow: 0, narrowing: false },
-  platformInterests: [], actualTopics: [], ads: { advertisers: [], adItems: 0 }, digest: { weekOf: '', lines: [] },
+  platformInterests: [], actualTopics: [], ads: { advertisers: [], adItems: 0, tactics: [] }, digest: { weekOf: '', lines: [] },
 };
 
 
@@ -41,7 +41,7 @@ const insights: Insights = {
   range: { monthThen: '2026-01', topicsThen: 7, monthNow: '2026-03', topicsNow: 4, narrowing: true },
   platformInterests: [{ platform: 'youtube', interests: [{ name: 'Cars', matches: false }, { name: 'Football', matches: true }] }],
   actualTopics: ['Football', 'Politics'],
-  ads: { advertisers: [{ platform: 'instagram', name: 'Acme Shoes', count: 14 }, { platform: 'instagram', name: 'Bank Co', count: 3 }], adItems: 25 },
+  ads: { advertisers: [{ platform: 'instagram', name: 'Acme Shoes', count: 14 }, { platform: 'instagram', name: 'Bank Co', count: 3 }], adItems: 25, tactics: [] },
   digest: { weekOf: '2026-03-23', lines: ['You watched 40 videos.', 'Politics was 30% of them.'] },
 };
 

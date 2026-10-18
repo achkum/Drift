@@ -3,6 +3,7 @@ import type {
   AdvertiserRecord, ClassifiedEvent, FollowRecord, Insights, Platform, PlatformInterestList,
   TopicDelta, TopicDetail, TopicId, TopicSource, TurningPoint,
 } from '@/lib/types';
+import { detectAdTactics } from './ads';
 import { matchTopic } from './classifier';
 import { buildFollowIndex, channelKey, isFollowed } from './origin';
 import { contentTokens, tokenize, tokensMatch } from './text';
@@ -68,7 +69,7 @@ export function emptyInsights(now = new Date()): Insights {
     range: { monthThen: '', topicsThen: 0, monthNow: '', topicsNow: 0, narrowing: false },
     platformInterests: [],
     actualTopics: [],
-    ads: { advertisers: [], adItems: 0 },
+    ads: { advertisers: [], adItems: 0, tactics: [] },
     digest: { weekOf: '', lines: [] },
   };
 }
@@ -238,7 +239,7 @@ export function buildInsights(input: InsightsInput): Insights {
     range,
     platformInterests,
     actualTopics,
-    ads: { advertisers: sortAdvertisers(input.advertisers), adItems },
+    ads: { advertisers: sortAdvertisers(input.advertisers), adItems, tactics: detectAdTactics(events) },
     digest: buildDigest(events, times, nowMs),
   };
 }

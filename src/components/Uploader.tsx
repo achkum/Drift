@@ -6,11 +6,13 @@ import { num, platformLabel, plural } from '@/lib/ui/format';
 
 const ACCEPT = '.zip,.json,.html,.htm,.csv,application/zip,application/json,text/html,text/csv';
 
-const STAGES: ImportProgress['stage'][] = ['reading', 'unzipping', 'parsing', 'classifying', 'analysing', 'saving', 'done'];
+const STAGES: ImportProgress['stage'][] = ['reading', 'unzipping', 'parsing', 'enriching', 'loading-model', 'classifying', 'analysing', 'saving', 'done'];
 const STAGE_LABEL: Record<ImportProgress['stage'], string> = {
   reading: 'Reading files',
   unzipping: 'Unzipping',
   parsing: 'Reading your history',
+  enriching: 'Looking up missing titles',
+  'loading-model': 'Loading the topic model',
   classifying: 'Sorting into topics',
   analysing: 'Working out your drift',
   saving: 'Saving on this device',

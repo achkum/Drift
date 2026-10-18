@@ -99,6 +99,15 @@ export async function existingEventIds(ids: string[]): Promise<Set<string>> {
   return found;
 }
 
+/** Overwrites events by id (e.g. after a title lookup filled in titles). */
+export async function putEvents(events: DriftEvent[]): Promise<void> {
+  if (events.length === 0) return;
+  const db = await getDb();
+  const tx = db.transaction('events', 'readwrite');
+  await Promise.all(events.map((e) => tx.store.put(e)));
+  await tx.done;
+}
+
 /** Adds events, skipping ids already stored (and duplicates within `events`). Returns how many were new. */
 export async function addEvents(events: DriftEvent[]): Promise<number> {
   if (events.length === 0) return 0;

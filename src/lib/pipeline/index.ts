@@ -4,11 +4,12 @@
 // (the fallback yields to the UI between stages). SSR-safe: no window / indexedDB access at import time.
 import type { ImportProgress, ImportRecord, Insights } from '@/lib/types';
 import * as store from '@/lib/store';
-import { runImport, DriftImportError } from './core';
+import { recomputeInsights, runImport, DriftImportError } from './core';
+import { getSettings } from '@/lib/settings';
 import type { UploadInput } from './files';
 import type { WorkerRequest, WorkerResponse } from './protocol';
 
-export { DriftImportError, NOT_AN_EXPORT_MESSAGE, recomputeInsights } from './core';
+export { DriftImportError, NOT_AN_EXPORT_MESSAGE } from './core';
 
 const EXPORT_FORMAT_VERSION = 1;
 
@@ -26,7 +27,9 @@ function canUseWorker(): boolean {
 /** Distinguishes "the worker could not start" (fall back) from a real import failure. */
 class WorkerUnavailable extends Error {}
 
-function importInWorker(inputs: UploadInput[], onProgress?: (p: ImportProgress) => void): Promise<ImportRecord[]> {
+type Finished = Extract<WorkerResponse, { type: 'done' | 'recomputed' }>;
+
+function runInWorker(req: WorkerRequest, onProgress?: (p: ImportProgress) => void): Promise<Finished> {
   return new Promise((resolve, reject) => {
     let worker: Worker;
     try {
@@ -41,7 +44,7 @@ function importInWorker(inputs: UploadInput[], onProgress?: (p: ImportProgress) 
       const msg = ev.data;
       started = true;
       if (msg.type === 'progress') onProgress?.(msg.progress);
-      else if (msg.type === 'done') { finish(); resolve(msg.records); }
+      else if (msg.type === 'done' || msg.type === 'recomputed') { finish(); resolve(msg); }
       else if (msg.type === 'error') { finish(); reject(new DriftImportError(msg.message)); }
     };
     worker.onerror = (ev) => {
@@ -56,7 +59,6 @@ function importInWorker(inputs: UploadInput[], onProgress?: (p: ImportProgress) 
       else reject(new Error('The import stopped unexpectedly.'));
     };
     try {
-      const req: WorkerRequest = { type: 'import', inputs };
       worker.postMessage(req);
     } catch (err) {
       finish();
@@ -78,16 +80,18 @@ export async function importFiles(
 ): Promise<ImportRecord[]> {
   const run = async (): Promise<ImportRecord[]> => {
     const inputs = toInputs(files);
+    const settings = getSettings();
     try {
       if (canUseWorker()) {
         try {
-          return await importInWorker(inputs, onProgress);
+          const res = await runInWorker({ type: 'import', inputs, settings }, onProgress);
+          if (res.type === 'done') return res.records;
         } catch (err) {
           if (!(err instanceof WorkerUnavailable)) throw err;
           // Fall through to the main thread.
         }
       }
-      return await runImport(inputs, onProgress);
+      return await runImport(inputs, onProgress, settings);
     } catch (err) {
       const message = err instanceof Error && err.message ? err.message : 'Something went wrong while importing.';
       onProgress?.({ stage: 'error', message });
@@ -95,6 +99,36 @@ export async function importFiles(
     }
   };
   // One import at a time, so dedupe and recompute never interleave.
+  const result = queue.then(run, run);
+  queue = result.catch(() => undefined);
+  return result;
+}
+
+/**
+ * Re-analyses everything stored with the current settings (e.g. after turning on smart topics
+ * or title lookup). Returns the new Insights, or null when nothing is imported.
+ */
+export async function recompute(onProgress?: (p: ImportProgress) => void): Promise<Insights | null> {
+  const run = async (): Promise<Insights | null> => {
+    const settings = getSettings();
+    try {
+      if (canUseWorker()) {
+        try {
+          const res = await runInWorker({ type: 'recompute', settings }, onProgress);
+          if (res.type === 'recomputed') { onProgress?.({ stage: 'done', message: 'Updated your results.', fraction: 1 }); return res.insights; }
+        } catch (err) {
+          if (!(err instanceof WorkerUnavailable)) throw err;
+        }
+      }
+      const insights = await recomputeInsights(onProgress, settings);
+      onProgress?.({ stage: 'done', message: 'Updated your results.', fraction: 1 });
+      return insights;
+    } catch (err) {
+      const message = err instanceof Error && err.message ? err.message : 'Something went wrong while updating your results.';
+      onProgress?.({ stage: 'error', message });
+      throw err instanceof Error ? err : new Error(message);
+    }
+  };
   const result = queue.then(run, run);
   queue = result.catch(() => undefined);
   return result;
