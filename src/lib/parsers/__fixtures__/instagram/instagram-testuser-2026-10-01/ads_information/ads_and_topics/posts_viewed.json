@@ -1,0 +1,7 @@
+{
+  "impressions_history_posts_seen": [
+    { "string_map_data": { "Author": { "value": "cafÃ©_demo" }, "Time": { "timestamp": 1767225600 } } },
+    { "string_map_data": { "Author": { "value": "gÃ¶teborg_demo" }, "Time": { "timestamp": 1767229200 } } },
+    { "string_map_data": { "Author": { "value": "no_time_demo" } } }
+  ]
+}

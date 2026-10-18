@@ -1,0 +1,7 @@
+{
+  "impressions_history_ads_seen": [
+    { "string_map_data": { "Author": { "value": "demo_sneakers" }, "Time": { "timestamp": 1767240000 } } },
+    { "string_map_data": { "Author": { "value": "demo_sneakers" }, "Time": { "timestamp": 1767243600 } } },
+    { "string_map_data": { "Author": { "value": "demo_bank" }, "Time": { "timestamp": 1767247200 } } }
+  ]
+}

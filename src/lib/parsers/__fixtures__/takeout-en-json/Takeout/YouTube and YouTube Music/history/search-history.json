@@ -1,0 +1,14 @@
+[{
+  "header": "YouTube",
+  "title": "Searched for marathon training plan",
+  "titleUrl": "https://www.youtube.com/results?search_query=marathon+training+plan",
+  "time": "2026-02-28T20:00:00.000Z",
+  "products": ["YouTube"],
+  "activityControls": ["YouTube search history"]
+}, {
+  "header": "YouTube",
+  "title": "Searched for café & bröd",
+  "titleUrl": "https://www.youtube.com/results?search_query=caf%C3%A9+%26+br%C3%B6d",
+  "time": "2026-02-27T20:00:00.000Z",
+  "products": ["YouTube"]
+}]
