@@ -3,5 +3,6 @@ import path from 'node:path';
 
 export default defineConfig({
   resolve: { alias: { '@': path.resolve(__dirname, 'src') } },
-  test: { include: ['src/**/*.test.ts'], environment: 'node' },
+  oxc: { tsconfig: false } as never,
+  test: { include: ['src/**/*.test.ts', 'mobile/src/**/*.test.ts'], environment: 'node' },
 });
