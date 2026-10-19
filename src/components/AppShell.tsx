@@ -4,14 +4,12 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Icon, type IconName } from './Icon';
 import { ToastProvider } from './Toast';
-import { HouseholdProvider } from './HouseholdProvider';
+import { HouseholdProvider, useHouseholdAlertCount } from './HouseholdProvider';
 import { GoogleAutoSync } from './GoogleAutoSync';
 import { TABS, activeTab, isFullScreen, noteNavigation, type TabId } from '@/lib/ui/nav';
 import { applyTheme, getThemePref } from '@/lib/ui/prefs';
-import { MEMBERS } from '@/lib/sample/household';
 
 const TAB_ICON: Record<TabId, IconName> = { home: 'home', timeline: 'trend', household: 'people', settings: 'sliders' };
-const ALERTS = Object.values(MEMBERS).filter((m) => m.alert).length;
 
 export function AppShell({ children }: { children: ReactNode }) {
   return (
@@ -30,13 +28,14 @@ function TabBar() {
   const path = usePathname();
   const hidden = isFullScreen(path);
   const current = activeTab(path);
+  const alerts = useHouseholdAlertCount();
   return (
     <nav className={`tabbar${hidden ? ' hidden' : ''}`} aria-label="Main" aria-hidden={hidden || undefined} inert={hidden || undefined}>
       {TABS.map((t) => (
         <Link key={t.id} href={t.href} aria-current={current === t.id ? 'page' : undefined}>
           <Icon name={TAB_ICON[t.id]} />
           {t.label}
-          {t.id === 'household' && ALERTS > 0 && <span className="badge" role="img" aria-label={`${ALERTS} alert`} />}
+          {t.id === 'household' && alerts > 0 && <span className="badge" role="img" aria-label={`${alerts} alert${alerts === 1 ? '' : 's'}`} />}
         </Link>
       ))}
     </nav>
