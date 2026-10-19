@@ -5,6 +5,7 @@ import { Icon } from '../Icon';
 import { Loading } from '../bits';
 import { Sheet } from '../Sheet';
 import { useToast } from '../Toast';
+import { useHouseholdLive } from '../HouseholdProvider';
 import { useDrift } from '@/lib/pipeline/useDrift';
 import { exportResults } from '@/lib/pipeline';
 import { bytes, dateShort, num, platformLabel, plural } from '@/lib/ui/format';
@@ -36,6 +37,7 @@ function useStorageEstimate(deps: unknown): number | null {
 
 export function DataScreen() {
   const { insights, isSample, imports, status, deleteAll, settings, updateSettings, recompute, progress } = useDrift();
+  const hh = useHouseholdLive();
   const toast = useToast();
   const [keep, setKeep] = useState<Keep>('2y');
   const [confirm, setConfirm] = useState(false);
@@ -91,8 +93,17 @@ export function DataScreen() {
     setBusy('delete');
     try {
       await deleteAll();
+      // Also leave the household, delete shared copies on the server and wipe the household keys.
+      let serverDeleted = true;
+      try {
+        const { deleteHouseholdData } = await import('@/lib/household');
+        serverDeleted = (await deleteHouseholdData()).serverDeleted;
+      } catch { serverDeleted = false; }
+      void hh.refresh();
       setConfirm(false);
-      toast('Everything Drift stored on this device was deleted.');
+      toast(serverDeleted
+        ? 'Everything Drift stored on this device was deleted.'
+        : 'Deleted on this device. Drift couldn’t reach the household server, so shared copies there were not removed.');
     } catch {
       toast('Couldn’t delete your data. Try again.');
     } finally {

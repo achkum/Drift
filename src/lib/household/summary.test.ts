@@ -87,6 +87,14 @@ describe('buildSharedSummary: privacy boundary', () => {
     expect(withSources.join(' ')).not.toContain('SECRET');
   });
 
+  it('shares ad tactic names and counts, never the example ad titles', () => {
+    const s = buildSharedSummary(teenInsights(), ['ads']);
+    expect(s.ads!.tactics).toEqual([{ id: 'fake_urgency', label: 'Fake urgency', count: 11 }]);
+    expect(s.ads!.trickyAdItems).toBe(11);
+    expect(JSON.stringify(s)).not.toContain('Last chance');
+    expect(buildSharedSummary(teenInsights(), ['trends']).ads).toBeUndefined();
+  });
+
   it('does not leak extra fields added to Insights later', () => {
     const ins = { ...teenInsights(), secretFutureField: CANARIES[0] } as never;
     expect(JSON.stringify(buildSharedSummary(ins, [...SHARE_CATEGORIES]))).not.toContain(CANARIES[0]);

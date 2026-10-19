@@ -141,7 +141,7 @@ function LockedCard({ m, preview, viewer }: { m: Member; preview: boolean; viewe
       <div className="card lock">
         <Icon name="lock" />
         <b className="b16">Not shared with {viewer}</b>
-        <span className="small">{viewer} can&rsquo;t see this. Turn it on in <Link href="/sharing" className="link">What you share</Link>.</span>
+        <span className="small">{viewer} can&rsquo;t see this. Turn it on in <Link href="/sharing?preview=1" className="link">What you share</Link>.</span>
       </div>
     );
   }
@@ -167,7 +167,7 @@ export function MemberScreen({ memberKey, preview }: { memberKey: MemberKey; pre
   const Body = { trends: TrendsPanel, sources: SourcesPanel, ads: AdsPanel, compare: ComparePanel }[panel];
 
   return (
-    <Screen tabbed back={p ? '/sharing' : '/household'}>
+    <Screen tabbed back={p ? '/sharing?preview=1' : '/household?preview=1'}>
       <div className="hrow">
         <span className={`avatar ${p ? 'av-you' : m.avatarClass}`} style={{ width: 52, height: 52, fontSize: p ? 15 : 20 }} aria-hidden="true">
           {p ? 'You' : m.initial}
@@ -179,7 +179,7 @@ export function MemberScreen({ memberKey, preview }: { memberKey: MemberKey; pre
       </div>
 
       {!p && m.alert && (
-        <Link href="/alert" className="alert">
+        <Link href="/alert?preview=1" className="alert">
           <svg className="warn-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l10 18H2z" /><path d="M12 10v4M12 17h.01" /></svg>
           <span style={{ flex: 1 }}><b className="b15">Feed shifting toward extreme dieting</b><span className="small">Maya was told first, 2 days ago.</span></span>
           <Chev />

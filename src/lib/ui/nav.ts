@@ -13,13 +13,14 @@ function under(path: string, base: string) {
   return path === base || path.startsWith(`${base}/`);
 }
 
-/** Full-screen routes have no tab bar (sign-in, onboarding, connect, invite, teen, alert, ask). */
+/** Full-screen routes have no tab bar (sign-in, onboarding, connect, invite, join, teen, alert, ask). */
 export function isFullScreen(path: string): boolean {
   return (
     path === '/' ||
     under(path, '/onboarding') ||
     under(path, '/connect') ||
     under(path, '/invite') ||
+    under(path, '/join') ||
     under(path, '/teen') ||
     under(path, '/alert') ||
     under(path, '/ask')

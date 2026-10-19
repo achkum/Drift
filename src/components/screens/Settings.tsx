@@ -6,6 +6,8 @@ import { PageTitle, Screen } from '../Screen';
 import { Chev, Icon } from '../Icon';
 import { Seg, SwitchRow } from '../controls';
 import { useToast } from '../Toast';
+import { useHouseholdLive } from '../HouseholdProvider';
+import { HouseholdSettings } from './HouseholdLive';
 import { useDrift } from '@/lib/pipeline/useDrift';
 import { setOnboarded, setThemePref, useSystemDark, useThemePref, type ThemePref } from '@/lib/ui/prefs';
 import { QLOG } from '@/lib/sample/household';
@@ -32,6 +34,7 @@ export function SettingsScreen() {
   const router = useRouter();
   const toast = useToast();
   const { imports, insights, isSample, status } = useDrift();
+  const hh = useHouseholdLive();
   const [digest, setDigest] = useState(true);
   const [alerts, setAlerts] = useState(true);
 
@@ -64,10 +67,15 @@ export function SettingsScreen() {
 
       <h2 className="group-label">Household</h2>
       <div className="list">
-        <NavRow href="/household" title="Members" />
-        <NavRow href="/sharing" title="What you share" />
-        <NavRow href="/settings/questions" title="Questions about you" detail={`${QLOG.length} this month`} />
+        <NavRow href="/household" title="Members" detail={hh.inHousehold ? hh.me?.household?.name : 'Not in a household yet'} />
+        <NavRow href={hh.inHousehold ? '/sharing' : '/sharing?preview=1'} title="What you share" detail={hh.inHousehold ? undefined : 'Preview'} />
+        <NavRow
+          href={hh.inHousehold ? '/settings/questions' : '/settings/questions?preview=1'}
+          title="Questions about you"
+          detail={hh.inHousehold ? (hh.questions.length ? plural(hh.questions.length, 'question') : 'None yet') : `Preview, ${QLOG.length} sample questions`}
+        />
       </div>
+      <HouseholdSettings />
 
       <h2 className="group-label">Notifications</h2>
       <div className="list">
