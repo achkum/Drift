@@ -138,6 +138,10 @@ export interface SharedSummary {
   ads?: {
     advertisers: { name: string; platform: Platform; count?: number }[];
     adItems: number;
+    /** Manipulative ad techniques with counts. Never the example ad titles. */
+    tactics?: { id: string; label: string; count: number }[];
+    /** Distinct ads that used at least one tactic. */
+    trickyAdItems?: number;
     platformInterests: { platform: Platform; interests: { name: string; matches: boolean }[] }[];
   };
   alerts?: SharedAlert[];

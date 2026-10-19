@@ -131,6 +131,9 @@ export function buildSharedSummary(
         .slice(0, MAX_ADVERTISERS)
         .map((a) => (a.count === undefined ? { name: clip(a.name), platform: a.platform } : { name: clip(a.name), platform: a.platform, count: num(a.count) })),
       adItems: num(insights.ads?.adItems),
+      // Tactic names and counts only: the examples are ad titles and stay on the device.
+      tactics: (insights.ads?.tactics ?? []).slice(0, 10).map((t) => ({ id: clip(String(t.id)), label: clip(String(t.label)), count: num(t.count) })),
+      trickyAdItems: num(insights.ads?.trickyAdItems),
       platformInterests: (insights.platformInterests ?? []).map((p) => ({
         platform: p.platform,
         interests: (p.interests ?? [])

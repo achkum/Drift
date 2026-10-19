@@ -2,7 +2,8 @@
 import Link from 'next/link';
 import { PageTitle, PreviewTag, Screen } from '../Screen';
 import { Chev, Icon } from '../Icon';
-import { useHousehold } from '../HouseholdProvider';
+import { useHousehold, useHouseholdLive } from '../HouseholdProvider';
+import { LiveHouseholdScreen } from './HouseholdLive';
 import { MEMBERS, VIEWER_NAMES, type ShareFlagsWithSensitive, type Viewer } from '@/lib/sample/household';
 import { joinAnd } from '@/lib/ui/format';
 
@@ -19,12 +20,29 @@ export function shareSummary(share: Record<Viewer, ShareFlagsWithSensitive>): st
     .join(' ');
 }
 
-export function HouseholdScreen() {
+/** Real household, or the sample people under ?preview=1. */
+export function HouseholdScreen({ preview = false }: { preview?: boolean }) {
+  const hh = useHouseholdLive();
+  if (preview) return <SampleHouseholdScreen inHousehold={hh.inHousehold} />;
+  return <LiveHouseholdScreen />;
+}
+
+/** Adds ?preview=1 so sample screens keep linking to sample screens. */
+export function pv(href: string): string {
+  return `${href}${href.includes('?') ? '&' : '?'}preview=1`;
+}
+
+function SampleHouseholdScreen({ inHousehold }: { inHousehold: boolean }) {
   const { share } = useHousehold();
   return (
-    <Screen tabbed>
+    <Screen tabbed back="/household">
       <PageTitle>Household</PageTitle>
-      <p className="small lead"><PreviewTag />3 of 6 members. Everyone sees only what others choose to share.</p>
+      <p className="small lead"><PreviewTag />Sample people. 3 of 6 members. Everyone sees only what others choose to share.</p>
+      <Link href="/household" className="banner">
+        <Icon name="info" />
+        <span>{inHousehold ? 'Sample people. Back to your real household.' : 'Sample people. Create or join a household to use your own.'}</span>
+        <Icon name="chev" style={{ width: 16, height: 16 }} />
+      </Link>
       <div className="list">
         <Link href="/home" className="row">
           <span className="avatar av-you" aria-hidden="true">You</span>
@@ -46,21 +64,21 @@ export function HouseholdScreen() {
           <span className="grow"><b>Leo, 13</b><span className="small">Invited, waiting for Leo to accept</span></span>
         </div>
       </div>
-      <Link href="/invite" className="card" style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+      <Link href={pv('/invite')} className="card" style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
         <span className="avatar" style={{ background: 'var(--bg)' }}>
           <Icon name="plus" style={{ width: 20, height: 20, fill: 'none', stroke: 'var(--t1)', strokeWidth: 2, strokeLinecap: 'round' }} />
         </span>
         <b style={{ fontSize: 16 }}>Invite someone</b>
       </Link>
-      <Link href="/sharing" className="outline" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+      <Link href={pv('/sharing')} className="outline" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
         <span><b className="b16">What you share</b><span className="small">{shareSummary(share)}</span></span>
         <Chev />
       </Link>
-      <Link href="/household/compare" className="outline" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+      <Link href={pv('/household/compare')} className="outline" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
         <span><b className="b16">Household compared</b><span className="small">You, Sam and Maya next to other people</span></span>
         <Chev />
       </Link>
-      <Link href="/ask?about=household" className="btn"><Icon name="sparkleOne" />Ask Drift about your household</Link>
+      <Link href={pv('/ask?about=household')} className="btn"><Icon name="sparkleOne" />Ask Drift about your household</Link>
     </Screen>
   );
 }

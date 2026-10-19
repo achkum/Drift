@@ -5,6 +5,8 @@ import { PageTitle, Screen } from '../Screen';
 import { Chev, Icon } from '../Icon';
 import { ChosenBar, Loading, NavCard, SampleBanner } from '../bits';
 import { PersonSheet } from '../PersonSheet';
+import { useHouseholdLive } from '../HouseholdProvider';
+import { LiveAlertBanner } from './HouseholdLive';
 import { useDrift } from '@/lib/pipeline/useDrift';
 import type { Insights, TopicDelta } from '@/lib/types';
 import { currentMonth, dateShort, joinAnd, monthLong, num, PLATFORM_LABEL, plural, signedPct } from '@/lib/ui/format';
@@ -51,6 +53,7 @@ function DeltaCard({ title, rows, kind }: { title: string; rows: TopicDelta[]; k
 export function HomeScreen() {
   const { insights, isSample, status } = useDrift();
   const [sheet, setSheet] = useState(false);
+  const own = useHouseholdLive().alerts.filter((a) => a.about === 'me');
   const ready = status === 'ready';
   const last = insights.months.at(-1);
   const pi = insights.platformInterests[0];
@@ -80,6 +83,7 @@ export function HomeScreen() {
         <>
           <span className="tiny" style={{ marginTop: -8 }}>{syncedLine(insights)}</span>
           {isSample && <SampleBanner />}
+          {!isSample && own.map((a) => <LiveAlertBanner key={a.id} a={a} />)}
 
           <Link href="/timeline" className="hero">
             <span className="muted tiny">{!last ? 'No history yet' : last === currentMonth() ? 'This month' : monthLong(last, true)}</span>
