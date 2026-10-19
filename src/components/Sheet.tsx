@@ -18,13 +18,13 @@ export function Sheet({ open, onClose, title, children, role = 'dialog' }: {
     if (!open) return;
     const prev = document.activeElement as HTMLElement | null;
     const el = ref.current;
-    const first = el?.querySelector<HTMLElement>('[data-autofocus]') ?? el?.querySelector<HTMLElement>('button, a[href], input, [tabindex]:not([tabindex="-1"])');
+    const first = el?.querySelector<HTMLElement>('[data-autofocus]') ?? el?.querySelector<HTMLElement>('button, a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
     (first ?? el)?.focus();
 
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') { e.preventDefault(); closeRef.current(); return; }
       if (e.key !== 'Tab' || !el) return;
-      const items = Array.from(el.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], input:not([disabled]), [tabindex]:not([tabindex="-1"])'));
+      const items = Array.from(el.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'));
       if (!items.length) return;
       const a = items[0], z = items[items.length - 1];
       if (e.shiftKey && document.activeElement === a) { e.preventDefault(); z.focus(); }

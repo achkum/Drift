@@ -2,7 +2,8 @@
 import { useEffect, useId, useState } from 'react';
 import { PageTitle, Screen } from '../Screen';
 import { Icon } from '../Icon';
-import { EmptyState, Loading } from '../bits';
+import { EmptyState, ExternalRow, Loading } from '../bits';
+import { RECOMMENDATION_ACTIONS } from '@/lib/ui/actions';
 import { useDrift } from '@/lib/pipeline/useDrift';
 import type { Origin, Platform, TopicDetail, TopicSource } from '@/lib/types';
 import { dateShort, monthLong, num, PLATFORM_LABEL } from '@/lib/ui/format';
@@ -66,6 +67,9 @@ export function TopicScreen({ id }: { id: string }) {
   const platform = topServedPlatform(d);
   const sources = [...d.sources].sort((a, b) => b.count - a.count);
   const sameMonth = d.fromMonth === d.toMonth;
+  // Platforms this topic came from that have recommendation controls, the top served one first.
+  const actionPlatforms = [...new Set([platform, ...sources.map((s) => s.platform)])]
+    .filter((p): p is Platform => !!p && !!RECOMMENDATION_ACTIONS[p]);
 
   return (
     <Screen tabbed back="/timeline">
@@ -126,6 +130,21 @@ export function TopicScreen({ id }: { id: string }) {
 
       {showTip && platform && (
         <div className="card note" id={tipId} role="status"><Icon name="info" /><span className="small t1">{FEWER_TIP[platform]}</span></div>
+      )}
+
+      {actionPlatforms.length > 0 && (
+        <>
+          <h2>Take action</h2>
+          <span className="small" style={{ marginTop: -4 }}>Official help for tuning your recommendations or starting over. Opens on the platform&rsquo;s site.</span>
+          {actionPlatforms.map((p) => (
+            <div key={p} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {actionPlatforms.length > 1 && <h3 className="group-label" style={{ margin: '4px 0 0 4px' }}>{PLATFORM_LABEL[p]}</h3>}
+              <div className="list">
+                {RECOMMENDATION_ACTIONS[p]!.map((l) => <ExternalRow key={l.href} {...l} />)}
+              </div>
+            </div>
+          ))}
+        </>
       )}
 
       <div className="bottom">

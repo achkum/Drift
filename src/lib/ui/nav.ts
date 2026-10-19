@@ -27,7 +27,7 @@ export function isFullScreen(path: string): boolean {
 }
 
 export function activeTab(path: string): TabId | null {
-  if (under(path, '/home') || under(path, '/chosen') || under(path, '/platforms')) return 'home';
+  if (under(path, '/home') || under(path, '/chosen') || under(path, '/platforms') || under(path, '/ads') || under(path, '/digest')) return 'home';
   if (under(path, '/timeline') || under(path, '/topic')) return 'timeline';
   if (under(path, '/household') || under(path, '/sharing')) return 'household';
   if (under(path, '/settings')) return 'settings';

@@ -3,22 +3,9 @@ import { useEffect, useRef, useState, type DragEvent } from 'react';
 import { Icon } from './Icon';
 import type { ImportProgress, ImportRecord } from '@/lib/types';
 import { num, platformLabel, plural } from '@/lib/ui/format';
+import { STAGE_LABEL, stageFraction } from '@/lib/ui/stages';
 
 const ACCEPT = '.zip,.json,.html,.htm,.csv,application/zip,application/json,text/html,text/csv';
-
-const STAGES: ImportProgress['stage'][] = ['reading', 'unzipping', 'parsing', 'enriching', 'loading-model', 'classifying', 'analysing', 'saving', 'done'];
-const STAGE_LABEL: Record<ImportProgress['stage'], string> = {
-  reading: 'Reading files',
-  unzipping: 'Unzipping',
-  parsing: 'Reading your history',
-  enriching: 'Looking up missing titles',
-  'loading-model': 'Loading the topic model',
-  classifying: 'Sorting into topics',
-  analysing: 'Working out your drift',
-  saving: 'Saving on this device',
-  done: 'Done',
-  error: 'Something went wrong',
-};
 
 type State =
   | { kind: 'idle' }
@@ -109,7 +96,7 @@ export function Uploader({ hint, progress, importFiles, onFinished }: Props) {
 
   if (state.kind === 'working') {
     const stage = progress?.stage ?? 'reading';
-    const frac = progress?.fraction ?? Math.max(0.05, STAGES.indexOf(stage) / (STAGES.length - 1));
+    const frac = stageFraction(progress);
     return (
       <div className="outline" aria-live="polite" aria-busy="true">
         <span className="split"><b className="b15">{STAGE_LABEL[stage]}</b><span className="tiny">{plural(state.count, 'file')}</span></span>
