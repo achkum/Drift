@@ -14,7 +14,7 @@ Origin metrics pool every event of every persona and seed. "oracle" = the same a
 | Drift onset found within ±1 month | 96% | Simple monthly counts | 76% |
 | False drift alarms per no-drift run | 0.2 | Simple monthly counts | 0.5 |
 | Headline names the scripted drift topic (drift runs) | 92% | – | – |
-| Headline claims a drift that was not scripted (no-drift runs) | 100% | – | – |
+| Headline claims a drift that was not scripted (no-drift runs) | 0% | – | – |
 | Topic accuracy, labelled titles | 65.4% | – | – |
 | Topic macro-F1, labelled titles | 0.707 | – | – |
 | Topic accuracy, simulated watches (with channel) | 92.3% | – | – |
@@ -68,11 +68,11 @@ Aggregated over 5 seeds. "Detected months" lists the target's rising turning poi
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | football_to_politics | 4738 | 88.3% | 0.707 | 22.9 | 27.8 | 93.3% | politics ↑ from 2026-05 (served) | 5/5 | 2026-06 (+1), 2026-05 (0), 2026-05 (0), 2026-06 (+1), 2026-05 (0) | 1 | 5 / 0 | served → served 5 | 5/5 | "Your feed drifted toward politics and news" |
 | runner_to_dieting | 3541 | 88.5% | 0.750 | 29.5 | 30.4 | 89.0% | dieting ↑ from 2026-05 (served) | 5/5 | 2026-05 (0), 2026-06 (+1), 2026-05 (0), 2026-05 (0), 2026-05 (0) | 1 | 5 / 0 | served → served 5 | 5/5 | "Your feed drifted toward dieting and weight loss" |
-| gamer_stable | 5948 | 85.9% | 0.695 | 25.6 | 32.6 | 94.7% | no drift | – | – | 2 | – / 5 | – | 0/5 | "Your feed drifted toward gaming" |
+| gamer_stable | 5948 | 85.9% | 0.695 | 25.6 | 32.6 | 94.7% | no drift | – | – | 2 | – / 5 | – | 5/5 | "Your feed stayed steady" |
 | heavy_subscriber | 2854 | 82.5% | 0.773 | 37.0 | 42.6 | 90.8% | true_crime ↑ from 2026-07 (served) | 5/5 | 2026-07 (0), 2026-07 (0), 2026-07 (0), 2026-07 (0), 2026-08 (+1) | 3 | 0 / 5 | served → served 5 | 3/5 | "Your feed drifted away from tech" |
 | heavy_searcher | 3840 | 75.8% | 0.745 | 64.6 | 56.6 | 92.9% | travel ↑ from 2026-06 (chosen) | 5/5 | 2026-06 (0), 2026-06 (0), 2026-06 (0), 2026-06 (0), 2026-06 (0) | 2 | 5 / 0 | chosen → chosen 4, served 1 | 5/5 | "Your feed drifted toward travel" |
 | bilingual_swedish | 2752 | 86.9% | 0.686 | 22.2 | 27.6 | 90.9% | true_crime ↑ from 2026-05 (served) | 4/5 | 2026-07 (+2), 2026-05 (0), 2026-06 (+1), 2026-06 (+1), 2026-05 (0) | 1 | 4 / 0 | served → served 5 | 5/5 | "Your feed drifted toward true crime" |
-| sparse_2month | 149 | 87.1% | 0.748 | 30.3 | 29.4 | 80.8% | no drift | – | – | 0 | – / 0 | – | 0/5 | "Your feed drifted toward comedy and entertainment" |
+| sparse_2month | 149 | 87.1% | 0.748 | 30.3 | 29.4 | 80.8% | no drift | – | – | 0 | – / 0 | – | 5/5 | "Your feed is mostly music" |
 
 ## Per persona: oracle
 
@@ -82,11 +82,11 @@ Aggregated over 5 seeds. "Detected months" lists the target's rising turning poi
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | football_to_politics | 4738 | 88.3% | 0.707 | 22.9 | 27.8 | 100.0% | politics ↑ from 2026-05 (served) | 5/5 | 2026-06 (+1), 2026-05 (0), 2026-05 (0), 2026-06 (+1), 2026-06 (+1) | 2 | 4 / 1 | served → served 5 | 5/5 | "Your feed drifted toward politics and news" |
 | runner_to_dieting | 3541 | 88.5% | 0.750 | 29.5 | 30.4 | 100.0% | dieting ↑ from 2026-05 (served) | 5/5 | 2026-05 (0), 2026-06 (+1), 2026-05 (0), 2026-05 (0), 2026-05 (0) | 1 | 4 / 0 | served → served 5 | 5/5 | "Your feed drifted toward dieting and weight loss" |
-| gamer_stable | 5948 | 85.9% | 0.695 | 25.6 | 32.6 | 100.0% | no drift | – | – | 3 | – / 5 | – | 2/5 | "Your feed stayed steady" |
+| gamer_stable | 5948 | 85.9% | 0.695 | 25.6 | 32.6 | 100.0% | no drift | – | – | 3 | – / 5 | – | 4/5 | "Your feed stayed steady" |
 | heavy_subscriber | 2854 | 82.5% | 0.773 | 37.0 | 42.6 | 100.0% | true_crime ↑ from 2026-07 (served) | 5/5 | 2026-07 (0), 2026-07 (0), 2026-07 (0), 2026-07 (0), 2026-08 (+1) | 4 | 2 / 3 | served → served 5 | 5/5 | "Your feed drifted toward true crime" |
 | heavy_searcher | 3840 | 75.8% | 0.745 | 64.6 | 56.6 | 100.0% | travel ↑ from 2026-06 (chosen) | 5/5 | 2026-06 (0), 2026-06 (0), 2026-06 (0), 2026-06 (0), 2026-06 (0) | 1 | 5 / 0 | chosen → chosen 3, served 2 | 5/5 | "Your feed drifted toward travel" |
 | bilingual_swedish | 2752 | 86.9% | 0.686 | 22.2 | 27.6 | 100.0% | true_crime ↑ from 2026-05 (served) | 4/5 | 2026-07 (+2), 2026-05 (0), 2026-06 (+1), 2026-06 (+1), 2026-05 (0) | 1 | 4 / 0 | served → served 5 | 5/5 | "Your feed drifted toward true crime" |
-| sparse_2month | 149 | 87.1% | 0.748 | 30.3 | 29.4 | 100.0% | no drift | – | – | 0 | – / 1 | – | 0/5 | "Your feed drifted away from animals and pets" |
+| sparse_2month | 149 | 87.1% | 0.748 | 30.3 | 29.4 | 100.0% | no drift | – | – | 0 | – / 1 | – | 5/5 | "Your feed is mostly music" |
 
 ## Turning points, seed 1 (keyword)
 
