@@ -8,9 +8,9 @@ Origin metrics pool every event of every persona and seed. "oracle" = the same a
 
 | Question | Drift | Best baseline | Baseline value |
 | --- | --- | --- | --- |
-| Chosen vs served, watch accuracy | 85.1% | Searches + subscribed channels | 80.7% |
-| Chosen vs served, chosen-class F1 | 0.729 | Searches + subscribed channels | 0.528 |
-| Chosen % (last 30 days), mean abs. error | 4.8 pts | Searches + subscribed channels | 9.3 pts |
+| Chosen vs served, watch accuracy | 86.5% | Searches + subscribed channels | 80.7% |
+| Chosen vs served, chosen-class F1 | 0.760 | Searches + subscribed channels | 0.528 |
+| Chosen % (last 30 days), mean abs. error | 4.7 pts | Searches + subscribed channels | 9.3 pts |
 | Drift onset found within ±1 month | 96% | Simple monthly counts | 76% |
 | False drift alarms per no-drift run | 0.2 | Simple monthly counts | 0.5 |
 | Headline names the scripted drift topic (drift runs) | 92% | – | – |
@@ -26,7 +26,7 @@ Origin labelling does not use topics, so these numbers are the same for every cl
 
 | Method | Watch accuracy | Chosen P | Chosen R | Chosen F1 | Served F1 | All-events 4-class acc. | 4-class macro-F1 | Chosen% MAE, 30 days (pts) | Chosen% MAE, all history (pts) |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| **Drift** (keyword topics) | 85.1% | 68.0% | 78.4% | 0.729 | 0.898 | 87.4% | 0.925 | 4.8 | 5.6 |
+| **Drift** (keyword topics) | 86.5% | 69.4% | 83.9% | 0.760 | 0.906 | 88.6% | 0.932 | 4.7 | 5.1 |
 | Baseline: Everything served | 74.6% | 0.0% | 0.0% | 0.000 | 0.854 | 70.1% | 0.702 | 30.7 | 30.9 |
 | Baseline: Only searches are chosen | 74.6% | 0.0% | 0.0% | 0.000 | 0.854 | 78.4% | 0.823 | 22.1 | 22.3 |
 | Baseline: Searches + subscribed channels | 80.7% | 70.0% | 42.4% | 0.528 | 0.879 | 83.7% | 0.890 | 9.3 | 9.8 |
@@ -38,7 +38,7 @@ Accuracy by true route (watches; share labelled on the correct side, chosen vs s
 | autoplay | served | 63004 | 92.2% | 100.0% | 100.0% | 93.7% |
 | home_feed | served | 12365 | 63.1% | 100.0% | 100.0% | 94.4% |
 | return | chosen | 2956 | 61.0% | 0.0% | 0.0% | 0.0% |
-| search_result | chosen | 13444 | 69.3% | 0.0% | 0.0% | 13.8% |
+| search_result | chosen | 13444 | 79.7% | 0.0% | 0.0% | 13.8% |
 | subscription | chosen | 9274 | 97.2% | 0.0% | 0.0% | 97.2% |
 
 Which analysis rule labelled each watch (rows = true route, share of that route’s watches). Errors are chosen routes landing in "feed", and served routes landing in any other column:
@@ -48,14 +48,14 @@ Which analysis rule labelled each watch (rows = true route, share of that route�
 | autoplay | 6.3% | 1.5% | 0.0% | 92.2% |
 | home_feed | 5.6% | 0.0% | 31.3% | 63.1% |
 | return | 0.0% | 0.0% | 61.0% | 39.0% |
-| search_result | 13.8% | 46.4% | 9.1% | 30.7% |
+| search_result | 13.8% | 2.0% | 0.0% | 20.3% |
 | subscription | 97.2% | 0.0% | 0.0% | 2.8% |
 
 4-class confusion matrix, Drift, all events (rows = truth, columns = predicted):
 
 | truth \ pred | chosen | engaged | served | pushed |
 | --- | --- | --- | --- | --- |
-| chosen | 30091 | 0 | 5534 | 0 |
+| chosen | 31480 | 0 | 4145 | 0 |
 | engaged | 0 | 2981 | 0 | 0 |
 | served | 9474 | 0 | 65895 | 0 |
 | pushed | 0 | 0 | 0 | 5134 |
@@ -66,13 +66,13 @@ Aggregated over 5 seeds. "Detected months" lists the target's rising turning poi
 
 | Persona | Events/run | Watch acc. | Chosen F1 | Chosen% 30d truth | Chosen% 30d Drift | Topic acc. (sim) | Script | Onset hits | Detected months | Extra TPs | Counts baseline hits / FAs | Attribution (truth → said) | Headline right | Headline (seed 1) |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| football_to_politics | 4738 | 88.3% | 0.707 | 22.9 | 27.8 | 93.3% | politics ↑ from 2026-05 (served) | 5/5 | 2026-06 (+1), 2026-05 (0), 2026-05 (0), 2026-06 (+1), 2026-05 (0) | 1 | 5 / 0 | served → served 5 | 5/5 | "Your feed drifted toward politics and news" |
-| runner_to_dieting | 3541 | 88.5% | 0.750 | 29.5 | 30.4 | 89.0% | dieting ↑ from 2026-05 (served) | 5/5 | 2026-05 (0), 2026-06 (+1), 2026-05 (0), 2026-05 (0), 2026-05 (0) | 1 | 5 / 0 | served → served 5 | 5/5 | "Your feed drifted toward dieting and weight loss" |
-| gamer_stable | 5948 | 85.9% | 0.695 | 25.6 | 32.6 | 94.7% | no drift | – | – | 2 | – / 5 | – | 5/5 | "Your feed stayed steady" |
-| heavy_subscriber | 2854 | 82.5% | 0.773 | 37.0 | 42.6 | 90.8% | true_crime ↑ from 2026-07 (served) | 5/5 | 2026-07 (0), 2026-07 (0), 2026-07 (0), 2026-07 (0), 2026-08 (+1) | 3 | 0 / 5 | served → served 5 | 3/5 | "Your feed drifted away from tech" |
-| heavy_searcher | 3840 | 75.8% | 0.745 | 64.6 | 56.6 | 92.9% | travel ↑ from 2026-06 (chosen) | 5/5 | 2026-06 (0), 2026-06 (0), 2026-06 (0), 2026-06 (0), 2026-06 (0) | 2 | 5 / 0 | chosen → chosen 4, served 1 | 5/5 | "Your feed drifted toward travel" |
-| bilingual_swedish | 2752 | 86.9% | 0.686 | 22.2 | 27.6 | 90.9% | true_crime ↑ from 2026-05 (served) | 4/5 | 2026-07 (+2), 2026-05 (0), 2026-06 (+1), 2026-06 (+1), 2026-05 (0) | 1 | 4 / 0 | served → served 5 | 5/5 | "Your feed drifted toward true crime" |
-| sparse_2month | 149 | 87.1% | 0.748 | 30.3 | 29.4 | 80.8% | no drift | – | – | 0 | – / 0 | – | 5/5 | "Your feed is mostly music" |
+| football_to_politics | 4738 | 89.0% | 0.728 | 22.9 | 28.2 | 93.3% | politics ↑ from 2026-05 (served) | 5/5 | 2026-06 (+1), 2026-05 (0), 2026-05 (0), 2026-06 (+1), 2026-05 (0) | 1 | 5 / 0 | served → served 5 | 5/5 | "Your feed drifted toward politics and news" |
+| runner_to_dieting | 3541 | 89.5% | 0.778 | 29.5 | 31.4 | 89.0% | dieting ↑ from 2026-05 (served) | 5/5 | 2026-05 (0), 2026-06 (+1), 2026-05 (0), 2026-05 (0), 2026-05 (0) | 1 | 5 / 0 | served → served 5 | 5/5 | "Your feed drifted toward dieting and weight loss" |
+| gamer_stable | 5948 | 86.2% | 0.702 | 25.6 | 32.8 | 94.7% | no drift | – | – | 2 | – / 5 | – | 5/5 | "Your feed stayed steady" |
+| heavy_subscriber | 2854 | 83.0% | 0.780 | 37.0 | 43.0 | 90.8% | true_crime ↑ from 2026-07 (served) | 5/5 | 2026-07 (0), 2026-07 (0), 2026-07 (0), 2026-07 (0), 2026-08 (+1) | 3 | 0 / 5 | served → served 5 | 3/5 | "Your feed drifted away from tech" |
+| heavy_searcher | 3840 | 82.2% | 0.824 | 64.6 | 61.0 | 92.9% | travel ↑ from 2026-06 (chosen) | 5/5 | 2026-06 (0), 2026-06 (0), 2026-06 (0), 2026-06 (0), 2026-06 (0) | 2 | 5 / 0 | chosen → chosen 5 | 5/5 | "Your feed drifted toward travel" |
+| bilingual_swedish | 2752 | 87.6% | 0.709 | 22.2 | 28.6 | 90.9% | true_crime ↑ from 2026-05 (served) | 4/5 | 2026-07 (+2), 2026-05 (0), 2026-06 (+1), 2026-06 (+1), 2026-05 (0) | 1 | 4 / 0 | served → served 5 | 5/5 | "Your feed drifted toward true crime" |
+| sparse_2month | 149 | 91.5% | 0.847 | 30.3 | 32.0 | 80.8% | no drift | – | – | 0 | – / 0 | – | 5/5 | "Your feed is mostly music" |
 
 ## Per persona: oracle
 
@@ -80,13 +80,13 @@ Aggregated over 5 seeds. "Detected months" lists the target's rising turning poi
 
 | Persona | Events/run | Watch acc. | Chosen F1 | Chosen% 30d truth | Chosen% 30d Drift | Topic acc. (sim) | Script | Onset hits | Detected months | Extra TPs | Counts baseline hits / FAs | Attribution (truth → said) | Headline right | Headline (seed 1) |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| football_to_politics | 4738 | 88.3% | 0.707 | 22.9 | 27.8 | 100.0% | politics ↑ from 2026-05 (served) | 5/5 | 2026-06 (+1), 2026-05 (0), 2026-05 (0), 2026-06 (+1), 2026-06 (+1) | 2 | 4 / 1 | served → served 5 | 5/5 | "Your feed drifted toward politics and news" |
-| runner_to_dieting | 3541 | 88.5% | 0.750 | 29.5 | 30.4 | 100.0% | dieting ↑ from 2026-05 (served) | 5/5 | 2026-05 (0), 2026-06 (+1), 2026-05 (0), 2026-05 (0), 2026-05 (0) | 1 | 4 / 0 | served → served 5 | 5/5 | "Your feed drifted toward dieting and weight loss" |
-| gamer_stable | 5948 | 85.9% | 0.695 | 25.6 | 32.6 | 100.0% | no drift | – | – | 3 | – / 5 | – | 4/5 | "Your feed stayed steady" |
-| heavy_subscriber | 2854 | 82.5% | 0.773 | 37.0 | 42.6 | 100.0% | true_crime ↑ from 2026-07 (served) | 5/5 | 2026-07 (0), 2026-07 (0), 2026-07 (0), 2026-07 (0), 2026-08 (+1) | 4 | 2 / 3 | served → served 5 | 5/5 | "Your feed drifted toward true crime" |
-| heavy_searcher | 3840 | 75.8% | 0.745 | 64.6 | 56.6 | 100.0% | travel ↑ from 2026-06 (chosen) | 5/5 | 2026-06 (0), 2026-06 (0), 2026-06 (0), 2026-06 (0), 2026-06 (0) | 1 | 5 / 0 | chosen → chosen 3, served 2 | 5/5 | "Your feed drifted toward travel" |
-| bilingual_swedish | 2752 | 86.9% | 0.686 | 22.2 | 27.6 | 100.0% | true_crime ↑ from 2026-05 (served) | 4/5 | 2026-07 (+2), 2026-05 (0), 2026-06 (+1), 2026-06 (+1), 2026-05 (0) | 1 | 4 / 0 | served → served 5 | 5/5 | "Your feed drifted toward true crime" |
-| sparse_2month | 149 | 87.1% | 0.748 | 30.3 | 29.4 | 100.0% | no drift | – | – | 0 | – / 1 | – | 5/5 | "Your feed is mostly music" |
+| football_to_politics | 4738 | 89.0% | 0.728 | 22.9 | 28.2 | 100.0% | politics ↑ from 2026-05 (served) | 5/5 | 2026-06 (+1), 2026-05 (0), 2026-05 (0), 2026-06 (+1), 2026-06 (+1) | 2 | 4 / 1 | served → served 5 | 5/5 | "Your feed drifted toward politics and news" |
+| runner_to_dieting | 3541 | 89.5% | 0.778 | 29.5 | 31.4 | 100.0% | dieting ↑ from 2026-05 (served) | 5/5 | 2026-05 (0), 2026-06 (+1), 2026-05 (0), 2026-05 (0), 2026-05 (0) | 1 | 4 / 0 | served → served 5 | 5/5 | "Your feed drifted toward dieting and weight loss" |
+| gamer_stable | 5948 | 86.2% | 0.702 | 25.6 | 32.8 | 100.0% | no drift | – | – | 3 | – / 5 | – | 4/5 | "Your feed stayed steady" |
+| heavy_subscriber | 2854 | 83.0% | 0.780 | 37.0 | 43.0 | 100.0% | true_crime ↑ from 2026-07 (served) | 5/5 | 2026-07 (0), 2026-07 (0), 2026-07 (0), 2026-07 (0), 2026-08 (+1) | 4 | 2 / 3 | served → served 5 | 5/5 | "Your feed drifted toward true crime" |
+| heavy_searcher | 3840 | 82.2% | 0.824 | 64.6 | 61.0 | 100.0% | travel ↑ from 2026-06 (chosen) | 5/5 | 2026-06 (0), 2026-06 (0), 2026-06 (0), 2026-06 (0), 2026-06 (0) | 1 | 5 / 0 | chosen → chosen 5 | 5/5 | "Your feed drifted toward travel" |
+| bilingual_swedish | 2752 | 87.6% | 0.709 | 22.2 | 28.6 | 100.0% | true_crime ↑ from 2026-05 (served) | 4/5 | 2026-07 (+2), 2026-05 (0), 2026-06 (+1), 2026-06 (+1), 2026-05 (0) | 1 | 4 / 0 | served → served 5 | 5/5 | "Your feed drifted toward true crime" |
+| sparse_2month | 149 | 91.5% | 0.847 | 30.3 | 32.0 | 100.0% | no drift | – | – | 0 | – / 1 | – | 5/5 | "Your feed is mostly music" |
 
 ## Turning points, seed 1 (keyword)
 

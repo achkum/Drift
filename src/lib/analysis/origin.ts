@@ -3,6 +3,8 @@ import type { DriftEvent, FollowRecord, Origin } from '@/lib/types';
 import { contentTokens, nameKey, tokensMatch, urlKey } from './text';
 
 export const SEARCH_WINDOW_MS = 30 * 60 * 1000;
+/** The first watch this soon after a search is almost always one of its results, even with no shared words. */
+export const SEARCH_CLICK_MS = 5 * 60 * 1000;
 export const RETURN_DAYS = 6;
 /** A watch starts a session when nothing was watched in the gap before it; only those count as a deliberate return. */
 export const SESSION_GAP_MS = 10 * 60 * 1000;
@@ -76,6 +78,7 @@ export function labelOrigins(events: DriftEvent[], times: number[], follows: Fol
   const recentSearches: { time: number; tokens: string[]; query: string }[] = [];
   const channelDays = new Map<string, number[]>();
   let lastWatch = -Infinity;
+  let lastSearch = -Infinity;
 
   for (let i = 0; i < events.length; i++) {
     const ev = events[i];
@@ -94,10 +97,12 @@ export function labelOrigins(events: DriftEvent[], times: number[], follows: Fol
       const q = ev.query ?? ev.title ?? '';
       const tokens = contentTokens(q);
       if (tokens.length) recentSearches.push({ time: t, tokens, query: q });
+      lastSearch = t;
       continue;
     }
 
     // Watch. Autoplay and feed scrolling chain watches together; a watch with a gap before it was opened on purpose more often.
+    const prevWatch = lastWatch;
     const startsSession = t - lastWatch > SESSION_GAP_MS;
     lastWatch = t;
     let label: OriginLabel | undefined;
@@ -106,6 +111,11 @@ export function labelOrigins(events: DriftEvent[], times: number[], follows: Fol
         origin: 'chosen',
         originReason: ev.platform === 'youtube' ? 'subscribed channel' : 'an account you follow',
       };
+    }
+
+    if (!label && t >= lastSearch && t - lastSearch <= SEARCH_CLICK_MS && prevWatch < lastSearch) {
+      const q = recentSearches.length ? recentSearches[recentSearches.length - 1].query : '';
+      label = { origin: 'chosen', originReason: q ? `opened right after a search for '${shorten(q)}'` : 'opened right after a search' };
     }
 
     if (!label && recentSearches.length) {
