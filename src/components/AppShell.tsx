@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { Icon, type IconName } from './Icon';
 import { ToastProvider } from './Toast';
 import { HouseholdProvider } from './HouseholdProvider';
+import { GoogleAutoSync } from './GoogleAutoSync';
 import { TABS, activeTab, isFullScreen, noteNavigation, type TabId } from '@/lib/ui/nav';
 import { applyTheme, getThemePref } from '@/lib/ui/prefs';
 import { MEMBERS } from '@/lib/sample/household';
@@ -17,6 +18,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <ToastProvider>
       <HouseholdProvider>
         <RouteEffects />
+        <GoogleAutoSync />
         <div className="app">{children}</div>
         <TabBar />
       </HouseholdProvider>
