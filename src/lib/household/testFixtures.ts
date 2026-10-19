@@ -61,7 +61,7 @@ export function teenInsights(): Insights {
       { name: 'Fitness', matches: true }, { name: 'Weight loss', matches: true }, { name: 'Gaming', matches: true },
     ] }],
     actualTopics: ['Gaming', 'Fitness and training', 'Dieting and weight loss', 'Music'],
-    ads: { advertisers: [{ platform: 'instagram', name: '[Supplement brand A]', count: 14 }, { platform: 'instagram', name: '[Sportswear brand C]', count: 18 }], adItems: 41 },
+    ads: { advertisers: [{ platform: 'instagram', name: '[Supplement brand A]', count: 14 }, { platform: 'instagram', name: '[Sportswear brand C]', count: 18 }], adItems: 41, tactics: [{ id: 'fake_urgency', label: 'Fake urgency', count: 11, examples: ['Last chance: offer ends tonight'] }], trickyAdItems: 11 },
     digest: {
       weekOf: '2026-10-12',
       lines: [
