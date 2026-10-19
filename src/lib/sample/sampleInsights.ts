@@ -230,11 +230,13 @@ export const sampleInsights: Insights = {
       { platform: 'instagram', name: 'Northwind News app', count: 18 },
       { platform: 'instagram', name: 'Streamly', count: 12 },
       { platform: 'instagram', name: 'Harbor Home Loans', count: 9 },
+      { platform: 'instagram', name: 'Lumen Fitness Club' },
+      { platform: 'instagram', name: 'Coastline Travel Deals' },
     ],
     adItems: 39,
     tactics: [
-      { id: 'fake_urgency', label: 'Fake urgency', count: 8, examples: ['Last chance: offer ends tonight'] },
-      { id: 'fake_discount', label: 'Fake discounts', count: 6, examples: ['70% off everything, today only'] },
+      { id: 'fake_urgency', label: 'Fake urgency', count: 8, examples: ['Last chance: offer ends tonight', 'Only 3 left in stock, order now', 'Hurry, prices go up at midnight'] },
+      { id: 'fake_discount', label: 'Fake discounts', count: 6, examples: ['70% off everything, today only', 'Was £199, now £39'] },
     ],
   },
 

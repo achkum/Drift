@@ -7,7 +7,7 @@ import { ChosenBar, Loading, NavCard, SampleBanner } from '../bits';
 import { PersonSheet } from '../PersonSheet';
 import { useDrift } from '@/lib/pipeline/useDrift';
 import type { Insights, TopicDelta } from '@/lib/types';
-import { currentMonth, dateShort, joinAnd, monthLong, num, PLATFORM_LABEL, signedPct } from '@/lib/ui/format';
+import { currentMonth, dateShort, joinAnd, monthLong, num, PLATFORM_LABEL, plural, signedPct } from '@/lib/ui/format';
 
 export function syncedLine(insights: Insights): string {
   if (!insights.platforms.length) return 'No platforms imported yet';
@@ -22,6 +22,15 @@ export function rangeLine(r: Insights['range']): string | null {
   if (r.narrowing) return `Narrowing: ${r.topicsThen} topics made up most of your viewing in ${then}, ${r.topicsNow} now.`;
   if (r.topicsNow > r.topicsThen) return `Widening: ${r.topicsThen} topics made up most of your viewing in ${then}, ${r.topicsNow} now.`;
   return `Steady: about ${r.topicsNow} topics make up most of your viewing, as in ${then}.`;
+}
+
+export function adsLine(ads: Insights['ads']): string {
+  const names = new Set(ads.advertisers.map((a) => a.name.trim().toLowerCase()).filter(Boolean)).size;
+  const tricks = ads.tactics.reduce((s, t) => s + t.count, 0);
+  const parts: string[] = [];
+  if (names) parts.push(`${plural(names, 'advertiser')} ${names === 1 ? 'has' : 'have'} your data or targeted you`);
+  if (tricks) parts.push(`${plural(tricks, 'ad')} used pressure tricks`);
+  return parts.length ? `${parts.join('. ')}.` : 'See who targets you and how to stop it.';
 }
 
 function DeltaCard({ title, rows, kind }: { title: string; rows: TopicDelta[]; kind: 'up' | 'down' }) {
@@ -46,7 +55,8 @@ export function HomeScreen() {
   const last = insights.months.at(-1);
   const pi = insights.platformInterests[0];
   const range = rangeLine(insights.range);
-  const hasChosen = insights.chosen.byPlatform.some((p) => p.items > 0) || insights.chosen.chosenPct + insights.chosen.servedPct > 0;
+  const hasAds = insights.ads.advertisers.length > 0 || insights.ads.tactics.length > 0;
+  const hasChosen =insights.chosen.byPlatform.some((p) => p.items > 0) || insights.chosen.chosenPct + insights.chosen.servedPct > 0;
 
   return (
     <Screen tabbed>
@@ -114,14 +124,24 @@ export function HomeScreen() {
             </div>
           )}
 
+          {hasAds && (
+            <NavCard href="/ads" title="Who targets you">
+              <span className="small">{adsLine(insights.ads)}</span>
+            </NavCard>
+          )}
+
           {insights.digest.lines.length > 0 && (
-            <div className="card">
+            <Link href="/digest" className="card">
               <span className="split">
                 <b className="b16">This week</b>
-                {insights.digest.weekOf && <span className="tiny">Week of {dateShort(insights.digest.weekOf, false)}</span>}
+                <span className="hrow" style={{ gap: 6 }}>
+                  {insights.digest.weekOf && <span className="tiny">Week of {dateShort(insights.digest.weekOf, false)}</span>}
+                  <Chev />
+                </span>
               </span>
-              <ul className="insights">{insights.digest.lines.map((l, i) => <li key={i}>{l}</li>)}</ul>
-            </div>
+              <ul className="insights">{insights.digest.lines.slice(0, 3).map((l, i) => <li key={i}>{l}</li>)}</ul>
+              {insights.digest.lines.length > 3 && <span className="tiny">{insights.digest.lines.length - 3} more in the digest</span>}
+            </Link>
           )}
         </>
       )}
