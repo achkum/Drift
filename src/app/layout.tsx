@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { DM_Sans } from 'next/font/google';
 import { AppShell } from '@/components/AppShell';
+import { ServiceWorker } from '@/components/ServiceWorker';
 import { BOOT_SCRIPT } from '@/lib/ui/boot';
 import './globals.css';
 
@@ -14,6 +15,16 @@ const dmSans = DM_Sans({
 export const metadata: Metadata = {
   title: { default: 'Drift', template: '%s · Drift' },
   description: 'See how your feeds drift: what platforms serve you versus what you choose. Everything runs on your device.',
+  applicationName: 'Drift',
+  manifest: '/manifest.webmanifest',
+  icons: {
+    icon: [
+      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+    ],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180' }],
+  },
+  appleWebApp: { capable: true, title: 'Drift', statusBarStyle: 'default' },
 };
 
 export const viewport: Viewport = {
@@ -34,6 +45,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       </head>
       <body>
         <AppShell>{children}</AppShell>
+        <ServiceWorker />
       </body>
     </html>
   );

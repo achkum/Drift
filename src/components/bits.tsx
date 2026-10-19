@@ -67,6 +67,19 @@ export function NavCard({ href, title, children, variant = 'outline' }: { href: 
   );
 }
 
+/** A list row linking to an official page on another site. */
+export function ExternalRow({ href, title, detail }: { href: string; title: string; detail?: string }) {
+  return (
+    <a href={href} className="row" target="_blank" rel="noopener noreferrer">
+      <span className="grow">
+        <b style={{ fontSize: 15 }}>{title}<span className="sr-only"> (opens in a new tab)</span></b>
+        {detail && <span className="tiny">{detail}</span>}
+      </span>
+      <Icon name="external" className="ext" />
+    </a>
+  );
+}
+
 export function SampleBanner() {
   return (
     <Link href="/connect" className="banner">

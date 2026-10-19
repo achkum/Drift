@@ -8,6 +8,8 @@ import { useToast } from '../Toast';
 import { useDrift } from '@/lib/pipeline/useDrift';
 import { exportResults } from '@/lib/pipeline';
 import { bytes, dateShort, num, platformLabel, plural } from '@/lib/ui/format';
+import { RECOMPUTE_STAGES, STAGE_LABEL, stageFraction } from '@/lib/ui/stages';
+import type { DriftSettings } from '@/lib/types';
 
 type Keep = '1y' | '2y' | 'forever';
 const KEEP: { value: Keep; label: string }[] = [
@@ -33,13 +35,33 @@ function useStorageEstimate(deps: unknown): number | null {
 }
 
 export function DataScreen() {
-  const { insights, isSample, imports, status, deleteAll } = useDrift();
+  const { insights, isSample, imports, status, deleteAll, settings, updateSettings, recompute, progress } = useDrift();
   const toast = useToast();
   const [keep, setKeep] = useState<Keep>('2y');
-  const [lookup, setLookup] = useState(false);
   const [confirm, setConfirm] = useState(false);
   const [busy, setBusy] = useState<'export' | 'delete' | null>(null);
+  /** A setting changed and the stored results don't reflect it yet. */
+  const [pending, setPending] = useState(false);
+  const [running, setRunning] = useState(false);
+  const [ran, setRan] = useState(false);
   const usage = useStorageEstimate(imports.length);
+  const locked = status !== 'ready' || isSample || running || busy !== null;
+  const frac = stageFraction(progress, RECOMPUTE_STAGES);
+
+  function onToggle(key: keyof DriftSettings, value: boolean) {
+    updateSettings({ [key]: value });
+    setPending(true);
+    setRan(false);
+  }
+
+  async function onUpdate() {
+    setPending(false);
+    setRunning(true);
+    setRan(false);
+    await recompute();
+    setRunning(false);
+    setRan(true);
+  }
 
   const summary = isSample
     ? 'Nothing imported yet. Drift is showing sample data.'
@@ -116,17 +138,65 @@ export function DataScreen() {
         ))}
       </div>
 
-      <label className="outline" style={{ flexDirection: 'row', alignItems: 'center', gap: 14, cursor: 'pointer' }}>
-        <span style={{ flex: 1 }}><b className="b15">Look up missing video titles</b><span className="tiny">Sends only video IDs to fetch titles. Off by default.</span></span>
-        <input type="checkbox" className="sw" checked={lookup} onChange={(e) => setLookup(e.target.checked)} />
-      </label>
+      <h2 className="group-label" id="processing-label">How Drift reads your history</h2>
+      <div className="list" role="group" aria-labelledby="processing-label" aria-describedby={isSample && status === 'ready' ? 'processing-note' : undefined}>
+        <label className="row">
+          <span className="grow">
+            <b style={{ fontSize: 15 }}>Smarter topics</b>
+            <span className="tiny">Uses a language model on this device to sort videos into topics. Downloads about 120 MB once.</span>
+          </span>
+          <input type="checkbox" className="sw" checked={settings.smartTopics} disabled={locked} onChange={(e) => onToggle('smartTopics', e.target.checked)} />
+        </label>
+        <label className="row">
+          <span className="grow">
+            <b style={{ fontSize: 15 }}>Look up missing video titles</b>
+            <span className="tiny">Sends only video links to YouTube and TikTok to fetch titles. Helps with TikTok, whose export has no titles. Off by default.</span>
+          </span>
+          <input type="checkbox" className="sw" checked={settings.titleLookup} disabled={locked} onChange={(e) => onToggle('titleLookup', e.target.checked)} />
+        </label>
+      </div>
+      {isSample && status === 'ready' && (
+        <span className="tiny" id="processing-note">These change how Drift reads your own history. Import an export first to use them.</span>
+      )}
+
+      {running ? (
+        <div className="outline" aria-live="polite" aria-busy="true">
+          <b className="b15">{STAGE_LABEL[progress?.stage ?? 'analysing']}</b>
+          <div className="meter" role="progressbar" aria-label="Update progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(frac * 100)}>
+            <span style={{ width: `${Math.round(frac * 100)}%` }} />
+          </div>
+          <span className="small">{progress?.message && progress.message !== 'Starting' ? progress.message : 'Updating your results on this device.'}</span>
+        </div>
+      ) : pending ? (
+        <div className="card" role="status">
+          <b className="b15">Update your results with this change?</b>
+          <span className="small">
+            Drift re-reads the history already on this device.{settings.smartTopics ? ' The first time, the topic model downloads before sorting starts.' : ''}
+            {' '}New imports use your settings either way.
+          </span>
+          <button type="button" className="btn" onClick={onUpdate}>Update my results</button>
+          <button type="button" className="btn-text" onClick={() => setPending(false)}>Not now</button>
+        </div>
+      ) : ran && progress?.stage === 'error' ? (
+        <div className="error-card" role="alert">
+          <b className="b15">We couldn&rsquo;t update your results</b>
+          <span className="small">{progress.message}</span>
+          <span className="tiny">Your previous results are still here.</span>
+          <button type="button" className="btn btn-2" onClick={onUpdate}>Try again</button>
+        </div>
+      ) : ran && progress?.stage === 'done' ? (
+        <div className="outline note" role="status">
+          <Icon name="check" style={{ stroke: 'var(--accent)' }} />
+          <span className="small t1">{insights.classifierNote ?? 'Your results are up to date with these settings.'}</span>
+        </div>
+      ) : null}
 
       <div className="bottom">
-        <button type="button" className="btn btn-2" onClick={onExport} disabled={busy !== null || isSample} aria-describedby={isSample ? 'export-note' : undefined}>
+        <button type="button" className="btn btn-2" onClick={onExport} disabled={busy !== null || isSample || running} aria-describedby={isSample ? 'export-note' : undefined}>
           {busy === 'export' ? 'Preparing…' : 'Export my results'}
         </button>
         {isSample && status === 'ready' && <span className="tiny" id="export-note" style={{ textAlign: 'center' }}>Import an export first to save your results.</span>}
-        <button type="button" className="btn btn-danger" onClick={() => setConfirm(true)} disabled={busy !== null}>Delete all my data</button>
+        <button type="button" className="btn btn-danger" onClick={() => setConfirm(true)} disabled={busy !== null || running}>Delete all my data</button>
         <span className="tiny" style={{ textAlign: 'center' }}>Deleting removes every import and result stored on this device.</span>
       </div>
 

@@ -58,7 +58,8 @@ export function SettingsScreen() {
       <h2 className="group-label">Data</h2>
       <div className="list">
         <NavRow href="/connect" title="Connected platforms" detail={connectedDetail} />
-        <NavRow href="/settings/data" title="Data and privacy" detail="Storage, export, delete" />
+        <NavRow href="/settings/data" title="Data and privacy" detail="Smarter topics, title lookup, storage, delete" />
+        <NavRow href="/ads" title="Who targets you" detail="Advertisers, ad tricks and ad settings" />
       </div>
 
       <h2 className="group-label">Household</h2>

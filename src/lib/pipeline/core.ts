@@ -1,12 +1,14 @@
 // OWNER: pipeline agent. The import pipeline itself, environment agnostic (main thread or worker):
 // collect files -> parseExport -> merge with stored data -> analyse -> save.
-import { analyse, createKeywordClassifier } from '@/lib/analysis';
+import { analyse } from '@/lib/analysis';
 import { parseExport } from '@/lib/parsers';
 import * as store from '@/lib/store';
 import type {
   AdvertiserRecord, DriftEvent, FollowRecord, ImportProgress, ImportRecord, Insights,
-  ParseResult, Platform, PlatformInterestList, TopicClassifier,
+  DriftSettings, ParseResult, Platform, PlatformInterestList, TopicClassifier,
 } from '@/lib/types';
+import { DEFAULT_SETTINGS } from '@/lib/settings';
+import { enrichEvents, getClassifier, lastModelError } from './extensions';
 import { collectExportFiles, normalisePath, type UploadInput } from './files';
 
 export const PLATFORM_LABELS: Record<Platform | 'mixed', string> = {
@@ -86,21 +88,40 @@ function hasAnyData(r: ParseResult): boolean {
 }
 
 /** Recomputes Insights from everything stored (e.g. after the analysis code changes). */
-export async function recomputeInsights(onProgress: Progress = () => {}): Promise<Insights | null> {
+export async function recomputeInsights(onProgress: Progress = () => {}, settings: DriftSettings = DEFAULT_SETTINGS): Promise<Insights | null> {
   const data = await store.readAll();
   if (data.events.length === 0) return null;
+  const enriched = await enrichEvents(data.events, settings, onProgress);
+  const events = applyEnriched(data.events, enriched);
+  const base = await getClassifier(settings, onProgress);
   onProgress({ stage: 'classifying', message: 'Sorting what you watched into topics', fraction: 0 });
   const { insights } = await analyse(
-    { ...data },
-    trackingClassifier(createKeywordClassifier(), data.events.length, onProgress),
+    { ...data, events },
+    trackingClassifier(base, events.length, onProgress),
   );
+  tagClassifier(insights, base.name, settings);
   onProgress({ stage: 'saving', message: 'Saving your results on this device' });
+  await store.putEvents(enriched);
   await store.saveInsights(insights);
   return insights;
 }
 
 /** Full import. Throws DriftImportError for problems the user can fix. */
-export async function runImport(inputs: UploadInput[], onProgress: Progress = () => {}): Promise<ImportRecord[]> {
+function tagClassifier(insights: Insights, name: string, settings: DriftSettings): void {
+  insights.classifier = name;
+  if (settings.smartTopics && name !== 'ml-e5') {
+    insights.classifierNote = `The topic model could not load${lastModelError ? ` (${lastModelError})` : ''}, so topics were sorted with keywords.`;
+  }
+}
+
+/** Replaces events by id with their enriched versions. */
+function applyEnriched(events: DriftEvent[], enriched: DriftEvent[]): DriftEvent[] {
+  if (enriched.length === 0) return events;
+  const byId = new Map(enriched.map((e) => [e.id, e]));
+  return events.map((e) => byId.get(e.id) ?? e);
+}
+
+export async function runImport(inputs: UploadInput[], onProgress: Progress = () => {}, settings: DriftSettings = DEFAULT_SETTINGS): Promise<ImportRecord[]> {
   if (inputs.length === 0) throw new DriftImportError('Choose a file or folder to import.');
 
   // 1-2. reading + unzipping
@@ -146,7 +167,10 @@ export async function runImport(inputs: UploadInput[], onProgress: Progress = ()
     }
     return n;
   });
-  const events = stored.events.concat(fresh);
+  const enriched = await enrichEvents(stored.events.concat(fresh), settings, onProgress);
+  const events = applyEnriched(stored.events.concat(fresh), enriched);
+  const freshIds = new Set(fresh.map((e) => e.id));
+  const base = await getClassifier(settings, onProgress);
   const newFollows = results.flatMap((r) => r.follows);
   const newInterests = results.flatMap((r) => r.interests);
   const newAdvertisers = results.flatMap((r) => r.advertisers);
@@ -160,7 +184,7 @@ export async function runImport(inputs: UploadInput[], onProgress: Progress = ()
     analysingReported = true;
     onProgress({ stage: 'analysing', message: 'Measuring how your feed drifted' });
   };
-  const classifier = trackingClassifier(createKeywordClassifier(), events.length, (p) => {
+  const classifier = trackingClassifier(base, events.length, (p) => {
     onProgress(p);
     if (p.fraction === 1) reportAnalysing();
   });
@@ -180,6 +204,7 @@ export async function runImport(inputs: UploadInput[], onProgress: Progress = ()
     throw new DriftImportError(`Your export was read, but Drift couldn't analyse it${why}. Nothing was saved.`);
   }
   reportAnalysing();
+  tagClassifier(insights, base.name, settings);
 
   // 6. saving
   onProgress({ stage: 'saving', message: 'Saving on this device (nothing is uploaded)', fraction: 0 });
@@ -198,7 +223,8 @@ export async function runImport(inputs: UploadInput[], onProgress: Progress = ()
       warnings: r.warnings,
     };
   });
-  await store.addEvents(fresh);
+  await store.addEvents(events.filter((e) => freshIds.has(e.id)));
+  await store.putEvents(enriched.filter((e) => !freshIds.has(e.id)));
   onProgress({ stage: 'saving', message: 'Saving on this device (nothing is uploaded)', fraction: 0.6 });
   await store.addFollows(newFollows);
   await store.addInterests(newInterests);

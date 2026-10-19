@@ -3,6 +3,7 @@ import type {
   AdvertiserRecord, ClassifiedEvent, FollowRecord, Insights, Platform, PlatformInterestList,
   TopicDelta, TopicDetail, TopicId, TopicSource, TurningPoint,
 } from '@/lib/types';
+import { analyseAds } from './ads';
 import { matchTopic } from './classifier';
 import { buildFollowIndex, channelKey, isFollowed } from './origin';
 import { contentTokens, tokenize, tokensMatch } from './text';
@@ -68,7 +69,7 @@ export function emptyInsights(now = new Date()): Insights {
     range: { monthThen: '', topicsThen: 0, monthNow: '', topicsNow: 0, narrowing: false },
     platformInterests: [],
     actualTopics: [],
-    ads: { advertisers: [], adItems: 0 },
+    ads: { advertisers: [], adItems: 0, tactics: [] },
     digest: { weekOf: '', lines: [] },
   };
 }
@@ -219,6 +220,7 @@ export function buildInsights(input: InsightsInput): Insights {
   const headline = buildHeadline({
     canCompare, rising, falling, fromMonth, watches, searches, ranked, viewingTotal, nMonthsWithData: monthTotals.filter((n) => n > 0).length,
     onlyTikTok: [...platformStats.keys()].every((p) => p === 'tiktok'),
+    monthly, turningPoints,
   });
 
   return {
@@ -238,7 +240,7 @@ export function buildInsights(input: InsightsInput): Insights {
     range,
     platformInterests,
     actualTopics,
-    ads: { advertisers: sortAdvertisers(input.advertisers), adItems },
+    ads: { advertisers: sortAdvertisers(input.advertisers), adItems, ...analyseAds(events) },
     digest: buildDigest(events, times, nowMs),
   };
 }
@@ -455,6 +457,7 @@ function buildHeadline(h: {
   canCompare: boolean; rising: TopicDelta[]; falling: TopicDelta[]; fromMonth: string;
   watches: number; searches: number; ranked: [TopicId, number][]; viewingTotal: number;
   nMonthsWithData: number; onlyTikTok: boolean;
+  monthly: Insights['monthly']; turningPoints: Insights['turningPoints'];
 }): Insights['headline'] {
   const basis = `${fmt(h.watches + h.searches)} videos and searches`;
   if (h.viewingTotal === 0 || h.ranked.length === 0) {
@@ -466,17 +469,19 @@ function buildHeadline(h: {
     };
   }
   const top = h.ranked[0][0];
-  if (!h.canCompare) {
+  if (!h.canCompare || h.nMonthsWithData < 3) {
     return {
       title: `Your feed is mostly ${lower(topicLabel(top))}`,
-      detail: `Based on ${basis} from one month. Add more history to see drift.`,
+      detail: h.nMonthsWithData <= 1
+        ? `Based on ${basis} from one month. Add more history to see drift.`
+        : `Based on ${basis} from ${h.nMonthsWithData} months. Drift needs at least 3 months of history.`,
       topic: top,
     };
   }
   const up = h.rising[0];
   const down = h.falling[0];
   const biggest = !down || (up && up.delta >= -down.delta) ? up : down;
-  if (!biggest || Math.abs(biggest.delta) < 3) {
+  if (!biggest || !isRealShift(biggest, h.monthly, h.turningPoints)) {
     return { title: 'Your feed stayed steady', detail: `Little change since ${monthName(h.fromMonth)}, based on ${basis}`, topic: top };
   }
   const size = Math.abs(biggest.delta);
@@ -488,6 +493,20 @@ function buildHeadline(h: {
     detail: `${strength}, based on ${basis}`,
     topic: biggest.topic,
   };
+}
+
+/**
+ * A change counts as drift only if it stands out from the topic's normal month-to-month wobble:
+ * a turning point backs it, or it is several times the typical monthly change (and at least 5 points).
+ */
+function isRealShift(d: TopicDelta, monthly: Insights['monthly'], tps: Insights['turningPoints']): boolean {
+  const size = Math.abs(d.delta);
+  if (size < 5) return false;
+  if (tps.some((t) => t.topic === d.topic && (t.direction === 'up') === (d.delta > 0))) return true;
+  const shares = monthly.find((m) => m.topic === d.topic)?.shares ?? [];
+  const steps = shares.slice(1).map((v, i) => Math.abs(v - shares[i])).sort((a, b) => a - b);
+  const typical = steps.length ? steps[Math.floor(steps.length / 2)] : 0;
+  return size >= Math.max(8, 3 * typical);
 }
 
 // ── weekly digest ─────────────────────────────────────────────────
