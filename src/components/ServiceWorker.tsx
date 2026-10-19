@@ -7,7 +7,7 @@ export function ServiceWorker() {
     if (process.env.NODE_ENV !== 'production') return;
     if (!('serviceWorker' in navigator)) return;
     const register = () => {
-      navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(() => { /* offline support is optional */ });
+      navigator.serviceWorker.register(`/sw.js?v=${process.env.NEXT_PUBLIC_DRIFT_BUILD ?? '1'}`, { scope: '/' }).catch(() => { /* offline support is optional */ });
     };
     if (document.readyState === 'complete') register();
     else {

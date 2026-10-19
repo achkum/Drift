@@ -6,12 +6,19 @@ import { DEFAULT_SETTINGS } from '@/lib/settings';
 type Progress = (p: ImportProgress) => void;
 
 /** The ML classifier when smart topics is on and the model loads; keywords otherwise. */
+/** Why the ML model last failed to load in this thread, if it did. */
+export let lastModelError: string | undefined;
+
 export async function getClassifier(settings: DriftSettings = DEFAULT_SETTINGS, onProgress: Progress = () => {}): Promise<TopicClassifier> {
   if (settings.smartTopics) {
     try {
       const { createMlClassifier } = await import('@/lib/ml');
-      return await createMlClassifier(onProgress);
-    } catch {
+      const c = await createMlClassifier(onProgress);
+      lastModelError = undefined;
+      return c;
+    } catch (err) {
+      lastModelError = err instanceof Error ? err.message : String(err);
+      console.warn('[drift] topic model failed to load:', err);
       onProgress({ stage: 'loading-model', message: 'The topic model could not load, so Drift used keywords instead.' });
     }
   }

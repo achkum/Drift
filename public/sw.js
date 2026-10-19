@@ -6,7 +6,7 @@
  * - /_next/static (hashed, immutable) and public assets: cache-first.
  * - /api/* and other origins are never cached or intercepted. User data never passes through here.
  */
-const VERSION = 'v1';
+const VERSION = new URL(self.location.href).searchParams.get('v') || 'v1';
 const PAGES = `drift-pages-${VERSION}`;
 const STATIC = `drift-static-${VERSION}`;
 const KEEP = [PAGES, STATIC];

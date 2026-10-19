@@ -187,7 +187,7 @@ export function DataScreen() {
       ) : ran && progress?.stage === 'done' ? (
         <div className="outline note" role="status">
           <Icon name="check" style={{ stroke: 'var(--accent)' }} />
-          <span className="small t1">Your results are up to date with these settings.</span>
+          <span className="small t1">{insights.classifierNote ?? 'Your results are up to date with these settings.'}</span>
         </div>
       ) : null}
 

@@ -8,7 +8,7 @@ import type {
   DriftSettings, ParseResult, Platform, PlatformInterestList, TopicClassifier,
 } from '@/lib/types';
 import { DEFAULT_SETTINGS } from '@/lib/settings';
-import { enrichEvents, getClassifier } from './extensions';
+import { enrichEvents, getClassifier, lastModelError } from './extensions';
 import { collectExportFiles, normalisePath, type UploadInput } from './files';
 
 export const PLATFORM_LABELS: Record<Platform | 'mixed', string> = {
@@ -99,6 +99,7 @@ export async function recomputeInsights(onProgress: Progress = () => {}, setting
     { ...data, events },
     trackingClassifier(base, events.length, onProgress),
   );
+  tagClassifier(insights, base.name, settings);
   onProgress({ stage: 'saving', message: 'Saving your results on this device' });
   await store.putEvents(enriched);
   await store.saveInsights(insights);
@@ -106,6 +107,13 @@ export async function recomputeInsights(onProgress: Progress = () => {}, setting
 }
 
 /** Full import. Throws DriftImportError for problems the user can fix. */
+function tagClassifier(insights: Insights, name: string, settings: DriftSettings): void {
+  insights.classifier = name;
+  if (settings.smartTopics && name !== 'ml-e5') {
+    insights.classifierNote = `The topic model could not load${lastModelError ? ` (${lastModelError})` : ''}, so topics were sorted with keywords.`;
+  }
+}
+
 /** Replaces events by id with their enriched versions. */
 function applyEnriched(events: DriftEvent[], enriched: DriftEvent[]): DriftEvent[] {
   if (enriched.length === 0) return events;
@@ -196,6 +204,7 @@ export async function runImport(inputs: UploadInput[], onProgress: Progress = ()
     throw new DriftImportError(`Your export was read, but Drift couldn't analyse it${why}. Nothing was saved.`);
   }
   reportAnalysing();
+  tagClassifier(insights, base.name, settings);
 
   // 6. saving
   onProgress({ stage: 'saving', message: 'Saving on this device (nothing is uploaded)', fraction: 0 });

@@ -227,7 +227,13 @@ export interface Insights {
   /** Labels of the user's top actual topics, most first. */
   actualTopics: string[];
 
-  ads: { advertisers: AdvertiserRecord[]; adItems: number; tactics: AdTactic[] };
+  /** trickyAdItems: distinct ads with at least one tactic (an ad can use several, so don't sum tactic counts). */
+  ads: { advertisers: AdvertiserRecord[]; adItems: number; tactics: AdTactic[]; trickyAdItems?: number };
+
+  /** Which topic classifier produced these results, e.g. 'keyword' or 'ml-e5'. */
+  classifier?: string;
+  /** Set when the user asked for the topic model but it could not load (shown in settings). */
+  classifierNote?: string;
 
   /** Weekly digest for the latest full week. */
   digest: { weekOf: string; lines: string[] };

@@ -154,6 +154,12 @@ export function tacticsIn(text: string): AdTactic['id'][] {
 
 /** Ads are events with origin 'pushed'. Returns tactics sorted by count, most first. */
 export function detectAdTactics(events: ClassifiedEvent[]): AdTactic[] {
+  return analyseAds(events).tactics;
+}
+
+/** Tactics plus the number of distinct ads that used at least one. */
+export function analyseAds(events: ClassifiedEvent[]): { tactics: AdTactic[]; trickyAdItems: number } {
+  let tricky = 0;
   const found = new Map<string, AdTactic>();
   for (const e of events) {
     if (!e || (e.origin !== 'pushed' && e.kind !== 'ad')) continue;
@@ -162,6 +168,7 @@ export function detectAdTactics(events: ClassifiedEvent[]): AdTactic[] {
     const text = [title, author].filter(Boolean).join(' — ');
     if (!text) continue;
     const ids = tacticsIn(text);
+    if (ids.length) tricky++;
     for (const id of ids) {
       const def = TACTICS.find((d) => d.id === id)!;
       const cur = found.get(id) ?? { id, label: def.label, count: 0, examples: [] };
@@ -172,5 +179,6 @@ export function detectAdTactics(events: ClassifiedEvent[]): AdTactic[] {
     }
   }
   const order = TACTICS.map((d) => d.id);
-  return [...found.values()].sort((a, b) => b.count - a.count || order.indexOf(a.id) - order.indexOf(b.id));
+  const tactics = [...found.values()].sort((a, b) => b.count - a.count || order.indexOf(a.id) - order.indexOf(b.id));
+  return { tactics, trickyAdItems: tricky };
 }

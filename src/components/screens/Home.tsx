@@ -26,7 +26,7 @@ export function rangeLine(r: Insights['range']): string | null {
 
 export function adsLine(ads: Insights['ads']): string {
   const names = new Set(ads.advertisers.map((a) => a.name.trim().toLowerCase()).filter(Boolean)).size;
-  const tricks = ads.tactics.reduce((s, t) => s + t.count, 0);
+  const tricks = ads.trickyAdItems ?? Math.max(0, ...ads.tactics.map((t) => t.count));
   const parts: string[] = [];
   if (names) parts.push(`${plural(names, 'advertiser')} ${names === 1 ? 'has' : 'have'} your data or targeted you`);
   if (tricks) parts.push(`${plural(tricks, 'ad')} used pressure tricks`);

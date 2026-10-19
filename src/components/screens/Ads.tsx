@@ -111,7 +111,7 @@ export function AdsScreen() {
   const imported = new Set(insights.platforms.map((p) => p.platform));
   const actions = [...AD_ACTIONS].sort((a, b) => Number(b.platforms.some((p) => imported.has(p))) - Number(a.platforms.some((p) => imported.has(p))));
   const shown = showAll ? advertisers : advertisers.slice(0, SHOW_FIRST);
-  const tacticAds = ads.tactics.reduce((s, t) => s + t.count, 0);
+  const tacticAds = ads.trickyAdItems ?? Math.max(0, ...ads.tactics.map((t) => t.count));
 
   if (status !== 'ready') {
     return <Screen tabbed back="/home"><PageTitle>Who targets you</PageTitle><Loading blocks={[20, 168, 120, 200]} /></Screen>;

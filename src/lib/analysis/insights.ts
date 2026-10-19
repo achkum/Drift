@@ -3,7 +3,7 @@ import type {
   AdvertiserRecord, ClassifiedEvent, FollowRecord, Insights, Platform, PlatformInterestList,
   TopicDelta, TopicDetail, TopicId, TopicSource, TurningPoint,
 } from '@/lib/types';
-import { detectAdTactics } from './ads';
+import { analyseAds } from './ads';
 import { matchTopic } from './classifier';
 import { buildFollowIndex, channelKey, isFollowed } from './origin';
 import { contentTokens, tokenize, tokensMatch } from './text';
@@ -240,7 +240,7 @@ export function buildInsights(input: InsightsInput): Insights {
     range,
     platformInterests,
     actualTopics,
-    ads: { advertisers: sortAdvertisers(input.advertisers), adItems, tactics: detectAdTactics(events) },
+    ads: { advertisers: sortAdvertisers(input.advertisers), adItems, ...analyseAds(events) },
     digest: buildDigest(events, times, nowMs),
   };
 }
