@@ -25,6 +25,7 @@
     "plugins": [
       "expo-sqlite",
       "expo-router",
+      "expo-font",
       "expo-sharing"
     ]
   }
