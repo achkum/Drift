@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { PageTitle, Screen, StepProgress } from '../Screen';
 import { Icon } from '../Icon';
+import { GoogleSyncCard } from '../GoogleSyncCard';
 import { useDrift } from '@/lib/pipeline/useDrift';
 import { setOnboarded, useOnboarded } from '@/lib/ui/prefs';
 import { dateShort, num } from '@/lib/ui/format';
@@ -15,9 +16,14 @@ const MATCHES: Record<UploadPlatform, Platform[]> = {
   instagram: ['instagram'],
 };
 
+/** Automatic Google sync imports YouTube and Google Search together, so the record is 'mixed'. */
+function isGoogleSync(i: ImportRecord): boolean {
+  return i.fileName.startsWith('google-sync-');
+}
+
 export function importStatus(p: UploadPlatform, imports: ImportRecord[], insights: Insights, isSample: boolean): string | null {
   const own = imports
-    .filter((i) => i.platform !== 'mixed' && MATCHES[p].includes(i.platform))
+    .filter((i) => (i.platform !== 'mixed' && MATCHES[p].includes(i.platform)) || (p === 'youtube' && isGoogleSync(i)))
     .sort((a, b) => b.importedAt.localeCompare(a.importedAt));
   if (own.length) {
     const events = own.reduce((s, i) => s + i.events, 0);
@@ -34,7 +40,7 @@ export function ConnectScreen() {
   const router = useRouter();
   const onboarded = useOnboarded();
   const { imports, insights, isSample, status } = useDrift();
-  const mixed = imports.filter((i) => i.platform === 'mixed');
+  const mixed = imports.filter((i) => i.platform === 'mixed' && !isGoogleSync(i));
 
   const finish = () => { setOnboarded(true); router.push('/home'); };
 
@@ -50,6 +56,8 @@ export function ConnectScreen() {
         <span className="after-ob">Connected platforms</span>
       </PageTitle>
       <p className="sub lead">Start with one. The more you add, the fuller the picture.</p>
+
+      <GoogleSyncCard compact />
 
       <div className="list">
         {UPLOAD_PLATFORMS.map((p) => {
@@ -87,7 +95,7 @@ export function ConnectScreen() {
           Also imported: {mixed.map((m) => `${m.fileName} (${dateShort(m.importedAt, false)})`).join(', ')}.
         </p>
       )}
-      <p className="small">Exports are read on this device. Nothing is uploaded.</p>
+      <p className="small">Exports are read on this device. Nothing is uploaded. With automatic Google sync, Google&rsquo;s archive may pass through Drift&rsquo;s server on its way to this device; it is never stored there.</p>
 
       <div className="bottom ob-only">
         <button type="button" className="btn" onClick={finish}>See my insights</button>

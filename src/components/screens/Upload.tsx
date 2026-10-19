@@ -6,6 +6,7 @@ import { Icon } from '../Icon';
 import { Note } from '../bits';
 import { Uploader } from '../Uploader';
 import { exportGuides } from '@/lib/parsers/guides';
+import { GoogleSyncCard } from '../GoogleSyncCard';
 import { useDrift } from '@/lib/pipeline/useDrift';
 import { setOnboarded } from '@/lib/ui/prefs';
 import type { UploadPlatform } from '@/lib/ui/platforms';
@@ -27,6 +28,7 @@ export function UploadScreen({ platform }: { platform: UploadPlatform }) {
     <Screen back="/connect">
       <PageTitle>{guide.title}</PageTitle>
       {guide.intro && <p className="sub lead">{guide.intro}</p>}
+      {platform === 'youtube' && <GoogleSyncCard />}
 
       {steps.length > 0 && (
         <ol className="steps" style={{ marginTop: 6 }}>

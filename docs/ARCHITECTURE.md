@@ -28,6 +28,7 @@ upload (.zip / .json / .html / .csv)
 | `src/lib/enrich/` | Opt-in title lookup through YouTube/TikTok oEmbed (sends only video ids) | `lookupMissingTitles` |
 | `src/lib/eval/`, `scripts/eval.ts` | Thesis evaluation: simulated personas with ground truth, metrics, baselines | `npm run eval` |
 | `src/lib/settings.ts`, `src/lib/pipeline/extensions.ts` | Device settings and the optional steps they switch on | `getSettings`, `getClassifier`, `enrichEvents` |
+| `src/app/api/google/`, `src/lib/server/google/`, `src/lib/connectors/google/` | Automatic Google sync via the Data Portability API: stateless OAuth broker (encrypted token in an httpOnly cookie), export jobs, optional streaming download proxy; client sync + auto-sync. See `docs/GOOGLE_SETUP.md` | `syncGoogle`, `useGoogleSync` |
 | `src/app/`, `src/components/`, `src/lib/sample/` | Screens from the wireframe, styling, sample data, PWA (`public/sw.js`) | routes |
 
 ## Rules

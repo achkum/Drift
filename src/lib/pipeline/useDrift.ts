@@ -43,7 +43,8 @@ function errorMessage(err: unknown, fallback: string): string {
   return err instanceof Error && err.message ? err.message : fallback;
 }
 
-function notifyOtherTabs() {
+/** Tells every open Drift view (this tab included) that stored data changed. */
+export function notifyDataChanged() {
   try {
     if (typeof BroadcastChannel === 'undefined') return;
     const ch = new BroadcastChannel(CHANNEL);
@@ -114,7 +115,7 @@ export function useDrift(): DriftState {
     try {
       const records = await importFiles(files, (p) => { if (mounted.current) setProgress(p); });
       await refresh();
-      notifyOtherTabs();
+      notifyDataChanged();
       return records;
     } catch (err) {
       if (mounted.current) {
@@ -132,7 +133,7 @@ export function useDrift(): DriftState {
       if (mounted.current) setProgress({ stage: 'error', message: errorMessage(err, "Couldn't delete your data. Try again.") });
     }
     await refresh();
-    notifyOtherTabs();
+    notifyDataChanged();
   }, [refresh]);
 
   const doRecompute = useCallback(async () => {
@@ -140,7 +141,7 @@ export function useDrift(): DriftState {
     try {
       await recomputeAll((p) => { if (mounted.current) setProgress(p); });
       await refresh();
-      notifyOtherTabs();
+      notifyDataChanged();
       if (mounted.current) setProgress((p) => (p && p.stage === 'done' ? p : { stage: 'done', message: 'Updated your results.', fraction: 1 }));
     } catch (err) {
       if (mounted.current) {
