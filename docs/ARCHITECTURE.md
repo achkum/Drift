@@ -30,6 +30,7 @@ upload (.zip / .json / .html / .csv)
 | `src/lib/settings.ts`, `src/lib/pipeline/extensions.ts` | Device settings and the optional steps they switch on | `getSettings`, `getClassifier`, `enrichEvents` |
 | `src/app/api/google/`, `src/lib/server/google/`, `src/lib/connectors/google/` | Automatic Google sync via the Data Portability API: stateless OAuth broker (encrypted token in an httpOnly cookie), export jobs, optional streaming download proxy; client sync + auto-sync. See `docs/GOOGLE_SETUP.md` | `syncGoogle`, `useGoogleSync` |
 | `src/lib/household/`, `src/app/api/household/` | Household mode: device keys, invites, end-to-end encrypted summaries, teen-first safety alerts, question log; server is a signed-request mailbox for ciphertext. See `docs/HOUSEHOLD.md` | `@/lib/household`, `useHousehold` |
+| `mobile/` | Expo app (iOS/Android): SQLite store, streaming zip import, native screens. Shares `src/lib/{types,parsers,analysis,ask,ui,sample}` via the `@/` alias. See `mobile/README.md` | `mobile/src/data/useDrift` |
 | `src/app/`, `src/components/`, `src/lib/sample/` | Screens from the wireframe, styling, sample data, PWA (`public/sw.js`) | routes |
 
 ## Rules

@@ -43,3 +43,6 @@ next-env.d.ts
 # agent worktrees
 /.claude/
 /.data/
+/mobile/node_modules/
+/mobile/.expo/
+/mobile/dist/
