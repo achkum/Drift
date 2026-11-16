@@ -46,3 +46,7 @@ next-env.d.ts
 /mobile/node_modules/
 /mobile/.expo/
 /mobile/dist/
+
+# Local AI assistant files
+CLAUDE.md
+.claude/
