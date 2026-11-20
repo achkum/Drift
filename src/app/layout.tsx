@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { DM_Sans } from 'next/font/google';
 import { AppShell } from '@/components/AppShell';
 import { ServiceWorker } from '@/components/ServiceWorker';
+import { WebAnalytics } from '@/components/WebAnalytics';
 import { BOOT_SCRIPT } from '@/lib/ui/boot';
 import './globals.css';
 
@@ -46,6 +47,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body>
         <AppShell>{children}</AppShell>
         <ServiceWorker />
+        <WebAnalytics />
       </body>
     </html>
   );

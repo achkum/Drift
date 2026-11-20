@@ -127,6 +127,7 @@ self.addEventListener('fetch', (event) => {
   if (url.origin !== self.location.origin) return;
   if (url.pathname.startsWith('/api/') || url.pathname === '/api') return;
   if (url.pathname === '/sw.js') return;
+  if (url.pathname.startsWith('/_vercel/')) return; // analytics: always network, never cached
   if (request.headers.get('range')) return;
 
   if (url.pathname.startsWith('/_next/static/')) {
